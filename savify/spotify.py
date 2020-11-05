@@ -4,34 +4,40 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from .track import Track
 from .types import *
 
-sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id='dec8fd36dc344633a19bd166a007df2d', client_secret='c9d73054fa2045b4a503918a83a174b6'))
 
+class Spotify:
+    def __init__(self, api_credentials=None):
+        if api_credentials == None:
+            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+        else:
+            id, secret = api_credentials
+            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=id, client_secret=secret))
 
-def search(query, query_type=Type.TRACK):
-    results = sp.search(q=query, limit=1, type=query_type)
-    if len(results[query_type + 's']['items']) > 0:
-        if query_type == 'track':
-            return [Track(results[query_type + 's']['items'][0])]
-        elif query_type == 'album':
-            return pack_album(sp.album(results['album' + 's']['items'][0]['id']))
-        elif query_type == 'playlist':
-            return pack_playlist(sp.playlist(results['playlist' + 's']['items'][0]['id']))
-    else:
-        return []
-
-
-def link(query):
-    try:
-        if '/track/' in query:
-            return [Track(sp.track(query))]
-        elif '/album/' in query:
-            return pack_album(sp.album(query))
-        elif '/playlist/' in query:
-            return pack_playlist(sp.playlist(query))
+    def search(self, query, query_type=Type.TRACK):
+        results = self.sp.search(q=query, limit=1, type=query_type)
+        if len(results[query_type + 's']['items']) > 0:
+            if query_type == 'track':
+                return [Track(results[query_type + 's']['items'][0])]
+            elif query_type == 'album':
+                return pack_album(self.sp.album(results['album' + 's']['items'][0]['id']))
+            elif query_type == 'playlist':
+                return pack_playlist(self.sp.playlist(results['playlist' + 's']['items'][0]['id']))
         else:
             return []
-    except spotipy.exceptions.SpotifyException:
-        return []
+
+
+    def link(self, query):
+        try:
+            if '/track/' in query:
+                return [Track(self.sp.track(query))]
+            elif '/album/' in query:
+                return pack_album(self.sp.album(query))
+            elif '/playlist/' in query:
+                return pack_playlist(self.sp.playlist(query))
+            else:
+                return []
+        except spotipy.exceptions.SpotifyException:
+            return []
 
 
 def pack_album(album):

@@ -1,6 +1,7 @@
 """Main module for Savify."""
 
 import time
+import os
 from uuid import uuid1
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
@@ -11,30 +12,11 @@ from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg
 
 from . import utils
-from . import spotify
+from .spotify import Spotify
 from .types import *
 from .track import Track
 from .logger import Logger
 
-
-def parse_query(query):
-    result = []
-
-    if validators.url(query):
-        domain = tldextract.extract(query).domain
-        if domain == Platform.SPOTIFY:
-            result = spotify.link(query)
-        else:
-            print('Invalid Spotify URL')
-    else:
-        if query_type == Type.TRACK:
-            result = spotify.search(self.query, query_type=Type.TRACK)
-        elif self.query_type == Type.ALBUM:
-            result = spotify.search(self.query, query_type=Type.ALBUM)
-        elif self.query_type == Type.PLAYLIST:
-            result = spotify.search(self.query, query_type=Type.PLAYLIST)
-
-    return result
 
 def sort_dir(track, group):
     group = group.replace('%artist%', track.artist_names[0])
@@ -47,19 +29,48 @@ def sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, query_type=Type.TRACK, quality=Quality.BEST, download_format=Format.MP3, output_path=utils.SAVE_PATH, group='/'):
+    def __init__(self, api_credentials=None, query_type=Type.TRACK, quality=Quality.BEST, download_format=Format.MP3, output_path=utils.SAVE_PATH, group='/'):
         self.query_type = query_type
         self.quality = quality
         self.download_format = download_format
         self.output_path = output_path
         self.group = group
 
+        if api_credentials == None:
+            if not(utils.check_env()):
+                raise RuntimeError('Spotify API credentials not setup.')
+            else:
+                self.spotify = Spotify()
+        else:
+            self.spotify = Spotify(api_credentials=api_credentials)
+
+    
+    def parse_query(self, query):
+        result = []
+
+        if validators.url(query):
+            domain = tldextract.extract(query).domain
+            if domain == Platform.SPOTIFY:
+                result = self.spotify.link(query)
+            else:
+                print('Invalid Spotify URL')
+        else:
+            if query_type == Type.TRACK:
+                result = self.spotify.search(self.query, query_type=Type.TRACK)
+            elif self.query_type == Type.ALBUM:
+                result = self.spotify.search(self.query, query_type=Type.ALBUM)
+            elif self.query_type == Type.PLAYLIST:
+                result = self.spotify.search(self.query, query_type=Type.PLAYLIST)
+
+        return result
+            
+
     def download(self, query):
         if not(utils.check_ffmpeg()):
             print("FFmpeg must be installed to use Savify!")
             return
 
-        queue = parse_query(query)
+        queue = self.parse_query(query)
 
         if not(len(queue) > 0):
             print('No tracks found using the given query.')

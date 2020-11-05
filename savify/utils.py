@@ -42,6 +42,12 @@ def check_ffmpeg():
     from shutil import which
     return which('ffmpeg') is not None
 
+def check_env():
+    if "SPOTIPY_CLIENT_ID" in os.environ and "SPOTIPY_CLIENT_SECRET" in os.environ:
+        return True
+    else:
+        return False
+
 
 def check_file(path):
     from pathlib import Path
