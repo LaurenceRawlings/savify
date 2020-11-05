@@ -30,9 +30,9 @@ Savify
      :target: https://github.com/laurencerawlings/savify/releases
      :alt: Downloads
 
-.. image:: https://readthedocs.org/projects/savify/badge/?version=latest?style=for-the-badge
-        :target: https://savify.readthedocs.io/eWn/latest/?badge=latest
-        :alt: Documentation Status
+.. image:: https://readthedocs.org/projects/savify/badge/?version=latest
+     :target: https://savify.readthedocs.io/en/latest/?badge=latest
+     :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/LaurenceRawlings/savify/shield.svg?style=for-the-badge
      :target: https://pyup.io/repos/github/LaurenceRawlings/savify/
