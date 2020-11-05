@@ -2,16 +2,10 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
-with open('LICENSE') as license_file:
-    license = license_file.read()
 
 requirements = ['Click>=7.0', 'ffmpy>=0.2.3', 'spotipy>=2.16.1', 'youtube-dl>=2020.11.1.1', ]
 
@@ -41,7 +35,7 @@ setup(
     },
     install_requires=requirements,
     license="MIT license",
-    long_description=readme + '\n\n' + history + '\n\n' + license,
+    long_description=readme,
     include_package_data=True,
     keywords='savify, spotify, downloader, mp3, save, playlist',
     name='savify',
