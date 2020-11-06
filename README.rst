@@ -2,6 +2,10 @@
 Savify
 ======
 
+.. image:: images/savify-banner.png
+     :target: https://laurencerawlings.github.io/savify/
+     :alt: Savify
+
 .. image:: https://img.shields.io/pypi/v/savify.svg?style=for-the-badge
         :target: https://pypi.python.org/pypi/savify
         :alt: PyPi
@@ -30,17 +34,13 @@ Savify
      :target: https://github.com/laurencerawlings/savify/releases
      :alt: Downloads
 
-.. image:: https://readthedocs.org/projects/savify/badge/?version=latest
-     :target: https://savify.readthedocs.io/en/latest/?badge=latest
+.. image:: https://img.shields.io/readthedocs/savify?style=for-the-badge
+     :target: https://savify.readthedocs.io
      :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/LaurenceRawlings/savify/shield.svg?style=for-the-badge
      :target: https://pyup.io/repos/github/LaurenceRawlings/savify/
      :alt: Updates
-
-.. image:: images/savify-banner.png
-     :target: https://laurencerawlings.github.io/savify/
-     :alt: Savify
 
 
 Savify
