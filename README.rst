@@ -7,7 +7,7 @@ Savify
         :alt: PyPi
 
 .. image:: https://img.shields.io/travis/LaurenceRawlings/savify.svg?style=for-the-badge
-        :target: https://travis-ci.com/LaurenceRawlings/savify
+        :target: https://travis-ci.org/github/LaurenceRawlings/savify
         :alt: Build
 
 .. image:: https://img.shields.io/discord/701075588466737312?style=for-the-badge
