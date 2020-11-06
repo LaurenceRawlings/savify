@@ -3,16 +3,15 @@ Savify
 ======
 
 .. image:: images/savify-banner.png
-     :target: https://laurencerawlings.github.io/savify/
      :alt: Savify
 
 .. image:: https://img.shields.io/pypi/v/savify.svg?style=for-the-badge
-        :target: https://pypi.python.org/pypi/savify
-        :alt: PyPi
+     :target: https://pypi.python.org/pypi/savify
+     :alt: PyPi
 
 .. image:: https://img.shields.io/travis/LaurenceRawlings/savify.svg?style=for-the-badge
-        :target: https://travis-ci.org/github/LaurenceRawlings/savify
-        :alt: Build
+     :target: https://travis-ci.org/github/LaurenceRawlings/savify
+     :alt: Build
 
 .. image:: https://img.shields.io/readthedocs/savify?style=for-the-badge
      :target: https://savify.readthedocs.io
@@ -142,9 +141,9 @@ Environment variables (reccommended)
 
 Now you need to add 2 environment variables to your system:
 
-``SPOTIPY\_CLIENT\_ID``
+``SPOTIPY_CLIENT_ID``
 
-``SPOTIPY\_CLIENT\_SECRET``
+``SPOTIPY_CLIENT_SECRET``
 
 To find out how to do this find a tutorial online for your specific
 operating system. Once you have done this make sure to restart your
