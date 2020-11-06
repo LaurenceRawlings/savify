@@ -28,8 +28,7 @@ def sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, api_credentials=None, query_type=Type.TRACK, quality=Quality.BEST, download_format=Format.MP3, output_path=utils.get_download_dir(), group=''):
-        self.query_type = query_type
+    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=utils.get_download_dir(), group=''):
         self.quality = quality
         self.download_format = download_format
         self.output_path = output_path
@@ -44,7 +43,7 @@ class Savify:
             self.spotify = Spotify(api_credentials=api_credentials)
 
     
-    def parse_query(self, query):
+    def parse_query(self, query, query_type=Type.TRACK):
         result = []
 
         if validators.url(query):
@@ -56,20 +55,20 @@ class Savify:
         else:
             if query_type == Type.TRACK:
                 result = self.spotify.search(self.query, query_type=Type.TRACK)
-            elif self.query_type == Type.ALBUM:
+            elif query_type == Type.ALBUM:
                 result = self.spotify.search(self.query, query_type=Type.ALBUM)
-            elif self.query_type == Type.PLAYLIST:
+            elif query_type == Type.PLAYLIST:
                 result = self.spotify.search(self.query, query_type=Type.PLAYLIST)
 
         return result
             
 
-    def download(self, query):
+    def download(self, query, query_type=Type.TRACK):
         if not(utils.check_ffmpeg()):
             print("FFmpeg must be installed to use Savify!")
             return
 
-        queue = self.parse_query(query)
+        queue = self.parse_query(query, query_type=query_type)
 
         if not(len(queue) > 0):
             print('No tracks found using the given query.')
