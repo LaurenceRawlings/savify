@@ -2,12 +2,12 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from .track import Track
-from .types import *
+from .types import Type
 
 
 class Spotify:
     def __init__(self, api_credentials=None):
-        if api_credentials == None:
+        if api_credentials is None:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
         else:
             id, secret = api_credentials

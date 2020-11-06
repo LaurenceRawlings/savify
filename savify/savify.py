@@ -1,11 +1,9 @@
 """Main module for Savify."""
 
 import time
-import os
 from uuid import uuid1
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
-from pathlib import Path
 
 import validators
 import tldextract
@@ -14,7 +12,7 @@ from ffmpy import FFmpeg
 
 from . import utils
 from .spotify import Spotify
-from .types import *
+from .types import Type, Platform, Format, Quality
 from .track import Track
 from .logger import Logger
 
@@ -34,7 +32,7 @@ class Savify:
         self.output_path = output_path
         self.group = group
 
-        if api_credentials == None:
+        if api_credentials is None:
             if not(utils.check_env()):
                 raise RuntimeError('Spotify API credentials not setup.')
             else:
@@ -42,7 +40,7 @@ class Savify:
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
-    
+
     def parse_query(self, query, query_type=Type.TRACK):
         result = []
 
@@ -61,7 +59,7 @@ class Savify:
                 result = self.spotify.search(self.query, query_type=Type.PLAYLIST)
 
         return result
-            
+
 
     def download(self, query, query_type=Type.TRACK):
         if not(utils.check_ffmpeg()):
@@ -80,8 +78,8 @@ class Savify:
 
             failed_jobs = []
             for job in jobs:
-               if job['returncode'] != 0:
-                   failed_jobs.append(job)
+                if job['returncode'] != 0:
+                    failed_jobs.append(job)
 
         utils.clean(utils.get_temp_dir())
 
@@ -92,12 +90,12 @@ class Savify:
             for failed_job in failed_jobs:
                 message += f'\nTrack: {failed_job["track"].name}\nReason: {failed_job["error"]}\n'
 
-        print(message)      
+        print(message)
 
 
     def _download(self, track: Track):
         logger = Logger()
-        status = { 
+        status = {
             'track': track,
             'returncode': -1
          }
@@ -150,7 +148,7 @@ class Savify:
             status['returncode'] = 1
             status['error'] = "Failed to download track."
             return status
-        
+
         try:
             cover_art = utils.download_file(track.cover_art_url, extension='jpg')
 
@@ -162,7 +160,7 @@ class Savify:
                     # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
                     # 'start_duration=1:start_threshold=-60dB:'
                     # 'detection=peak,aformat=dblp,areverse"'
-                }
+                    }
             )
 
             ffmpeg.run()
@@ -170,6 +168,6 @@ class Savify:
             status['returncode'] = 2
             status['error'] = "Failed to add cover art."
             return status
-        
+
         status['returncode'] = 0
         return status

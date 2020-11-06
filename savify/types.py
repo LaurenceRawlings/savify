@@ -12,5 +12,6 @@ class Platform:
 class Format:
     MP3 = 'mp3'
 
+
 class Quality:
     BEST = '0'

@@ -18,6 +18,7 @@ def clean(path):
 def create_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
 
+
 def _get_data_dir() -> Path:
     from sys import platform
 
@@ -29,6 +30,7 @@ def _get_data_dir() -> Path:
         return home / ".local/share"
     elif platform == "darwin":
         return home / "Library/Application Support"
+
 
 def get_data_dir() -> Path:
     data_dir = _get_data_dir() / "Savify"
@@ -48,11 +50,11 @@ def get_temp_dir() -> Path:
     return temp_dir
 
 
-def download_file(url: str, extension: str=None) -> Path:
+def download_file(url: str, extension: str = None) -> Path:
     from uuid import uuid1
     file_path = get_temp_dir() / str(uuid1())
 
-    if extension != None:
+    if extension is not None:
         file_path = file_path.with_suffix(f'.{extension}')
 
     from urllib.request import urlretrieve
@@ -64,6 +66,7 @@ def download_file(url: str, extension: str=None) -> Path:
 def check_ffmpeg() -> bool:
     from shutil import which
     return which('ffmpeg') is not None
+
 
 def check_env() -> bool:
     from os import environ
