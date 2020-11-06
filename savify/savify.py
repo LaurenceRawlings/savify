@@ -1,5 +1,7 @@
 """Main module for Savify."""
 
+__all__ = ['Savify']
+
 import time
 from uuid import uuid1
 from multiprocessing import cpu_count
@@ -10,14 +12,14 @@ import tldextract
 from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg
 
-from . import utils
+from .utils import *
+from .types import *
 from .spotify import Spotify
-from .types import Type, Platform, Format, Quality
 from .track import Track
 from .logger import Logger
 
 
-def sort_dir(track, group):
+def _sort_dir(track, group):
     group = group.replace('%artist%', track.artist_names[0])
     group = group.replace('%album%', track.album_name)
     group = group.replace('%playlist%', track.playlist)
@@ -26,14 +28,14 @@ def sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=utils.get_download_dir(), group=''):
+    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=''):
         self.quality = quality
         self.download_format = download_format
         self.output_path = output_path
         self.group = group
 
         if api_credentials is None:
-            if not(utils.check_env()):
+            if not(check_env()):
                 raise RuntimeError('Spotify API credentials not setup.')
             else:
                 self.spotify = Spotify()
@@ -41,7 +43,7 @@ class Savify:
             self.spotify = Spotify(api_credentials=api_credentials)
 
 
-    def parse_query(self, query, query_type=Type.TRACK):
+    def _parse_query(self, query, query_type=Type.TRACK):
         result = []
 
         if validators.url(query):
@@ -62,11 +64,11 @@ class Savify:
 
 
     def download(self, query, query_type=Type.TRACK):
-        if not(utils.check_ffmpeg()):
+        if not(check_ffmpeg()):
             print("FFmpeg must be installed to use Savify!")
             return
 
-        queue = self.parse_query(query, query_type=query_type)
+        queue = self._parse_query(query, query_type=query_type)
 
         if not(len(queue) > 0):
             print('No tracks found using the given query.')
@@ -81,7 +83,7 @@ class Savify:
                 if job['returncode'] != 0:
                     failed_jobs.append(job)
 
-        utils.clean(utils.get_temp_dir())
+        clean(get_temp_dir())
 
         message = (f'\nDownload Finished! \nCompleted {len(queue) - len(failed_jobs)}/{len(queue)} tracks in {time.time() - start_time:.4f}s')
 
@@ -100,18 +102,18 @@ class Savify:
             'returncode': -1
          }
         query = str(track) + ' (AUDIO)'
-        output = self.output_path / f'{sort_dir(track, self.group)}' / f'{track.artist_names[0]} - {track.name}.{self.download_format}'
+        output = self.output_path / f'{_sort_dir(track, self.group)}' / f'{track.artist_names[0]} - {track.name}.{self.download_format}'
 
-        if utils.check_file(output):
+        if check_file(output):
             print('Song already downloaded. Skipping...')
             status['returncode'] = 0
             return status
 
-        utils.create_dir(output.parent)
+        create_dir(output.parent)
 
         options = {
             'format': 'bestaudio/best',
-            'outtmpl': f'{str(utils.get_temp_dir())}/{str(uuid1())}.%(ext)s',
+            'outtmpl': f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s',
             'restrictfilenames': True,
             'ignoreerrors': True,
             'nooverwrites': True,
@@ -150,7 +152,7 @@ class Savify:
             return status
 
         try:
-            cover_art = utils.download_file(track.cover_art_url, extension='jpg')
+            cover_art = download_file(track.cover_art_url, extension='jpg')
 
             ffmpeg = FFmpeg(
                 inputs={logger.final_destination: None, str(cover_art): None, },

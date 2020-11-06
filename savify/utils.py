@@ -1,5 +1,6 @@
 from pathlib import Path
 
+__all__ = ['clean', 'create_dir', 'get_download_dir', 'get_temp_dir', 'download_file', 'check_ffmpeg', 'check_env', 'check_file']
 
 def clean(path):
     import os
@@ -25,27 +26,21 @@ def _get_data_dir() -> Path:
     home = Path.home()
 
     if platform == "win32":
-        return home / "AppData/Roaming"
+        return home / "AppData/Roaming/Savify"
     elif platform == "linux":
-        return home / ".local/share"
+        return home / ".local/share/Savify"
     elif platform == "darwin":
-        return home / "Library/Application Support"
-
-
-def get_data_dir() -> Path:
-    data_dir = _get_data_dir() / "Savify"
-    create_dir(data_dir)
-    return data_dir
+        return home / "Library/Application Support/Savify"
 
 
 def get_download_dir() -> Path:
-    download_dir = get_data_dir() / "downloads"
+    download_dir = _get_data_dir() / "downloads"
     create_dir(download_dir)
     return download_dir
 
 
 def get_temp_dir() -> Path:
-    temp_dir = get_data_dir() / "temp"
+    temp_dir = _get_data_dir() / "temp"
     create_dir(temp_dir)
     return temp_dir
 

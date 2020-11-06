@@ -1,3 +1,5 @@
+__all__ = ['Type', 'Platform', 'Format', 'Quality']
+
 class Type:
     TRACK = 'track'
     ALBUM = 'album'
