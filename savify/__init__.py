@@ -10,6 +10,6 @@ Tool for downloading Spotify songs to MP3 - Full Metadata & Cover Art
 __title__ = 'Savify'
 __author__ = """Laurence Rawlings"""
 __email__ = 'contact@laurencerawlings.com'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __license__ = 'MIT'
 __docformat__ = 'restructuredtext en'
