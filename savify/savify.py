@@ -54,11 +54,11 @@ class Savify:
                 print('Invalid Spotify URL')
         else:
             if query_type == Type.TRACK:
-                result = self.spotify.search(self.query, query_type=Type.TRACK)
+                result = self.spotify.search(query, query_type=Type.TRACK)
             elif query_type == Type.ALBUM:
-                result = self.spotify.search(self.query, query_type=Type.ALBUM)
+                result = self.spotify.search(query, query_type=Type.ALBUM)
             elif query_type == Type.PLAYLIST:
-                result = self.spotify.search(self.query, query_type=Type.PLAYLIST)
+                result = self.spotify.search(query, query_type=Type.PLAYLIST)
 
         return result
 
