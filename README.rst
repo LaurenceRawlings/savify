@@ -175,13 +175,13 @@ Import and use Savify:
      from savify import Savify
      from savify.types import Type, Format, Quality
 
-     with Savify() as s:
-          # Spotify URL
-          s.download("SPOTIFY URL")
+     s = Savify()
+     # Spotify URL
+     s.download("SPOTIFY URL")
 
-          # Search Query
-          # Types: TRACK, ALBUM, PLAYLIST
-          s.download("QUERY", query_type=Type.TRACK)
+     # Search Query
+     # Types: TRACK, ALBUM, PLAYLIST
+     s.download("QUERY", query_type=Type.TRACK)
 
 Savify optional constructor arguments (se above for defaults):
 
