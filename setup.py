@@ -44,6 +44,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/LaurenceRawlings/savify',
-    version='1.1.2',
+    version='1.1.3',
     zip_safe=False,
 )
