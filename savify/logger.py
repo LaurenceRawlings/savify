@@ -1,19 +1,28 @@
 class Logger(object):
-    def __init__(self):
-        self.final_destination = ''
+    def __init__(self, quiet=False):
         self.log = ''
+        self.quiet = quiet
+
+    
+    def log(self, msg):
+        self.log += msg + '\n'
+        if not self.quiet:
+            print('[INFO] ' + msg)
+
 
     def warning(self, msg):
         self.log += msg + '\n'
-        print('[WARN] ' + msg)
+        if not self.quiet:
+            print('[WARN] ' + msg)
+
 
     def error(self, msg):
         self.log += msg + '\n'
-        print('[ERROR] ' + msg)
+        if not self.quiet:
+            print('[ERROR] ' + msg)
+
 
     def debug(self, msg):
         self.log += msg + '\n'
-        ffmpeg_destination = '[ffmpeg] Destination: '
-        if ffmpeg_destination in msg:
-            self.final_destination = msg.replace(ffmpeg_destination, '')
-        return print('[INFO] ' + msg)
+        if not self.quiet:
+            print('[DEBUG] ' + msg)

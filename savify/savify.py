@@ -20,6 +20,9 @@ from .logger import Logger
 
 
 def _sort_dir(track, group):
+    if not group:
+        return ''
+
     group = group.replace('%artist%', track.artist_names[0])
     group = group.replace('%album%', track.album_name)
     group = group.replace('%playlist%', track.playlist)
@@ -28,11 +31,13 @@ def _sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=''):
+    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=None, quiet=False):
         self.quality = quality
         self.download_format = download_format
         self.output_path = output_path
         self.group = group
+        self.quiet = quiet
+        self.logger = Logger(quiet=quiet)
 
         if api_credentials is None:
             if not(check_env()):
@@ -96,13 +101,14 @@ class Savify:
 
 
     def _download(self, track: Track):
-        logger = Logger()
+        logger = Logger(quiet=self.quiet)
         status = {
             'track': track,
             'returncode': -1
          }
         query = str(track) + ' (AUDIO)'
         output = self.output_path / f'{_sort_dir(track, self.group)}' / f'{track.artist_names[0]} - {track.name}.{self.download_format}'
+        output_temp = f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s'
 
         if check_file(output):
             print('Song already downloaded. Skipping...')
@@ -113,7 +119,7 @@ class Savify:
 
         options = {
             'format': 'bestaudio/best',
-            'outtmpl': f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s',
+            'outtmpl': output_temp,
             'restrictfilenames': True,
             'ignoreerrors': True,
             'nooverwrites': True,
@@ -149,13 +155,15 @@ class Savify:
         except:
             status['returncode'] = 1
             status['error'] = "Failed to download track."
+            print(logger.log)
             return status
 
         try:
             cover_art = download_file(track.cover_art_url, extension='jpg')
+            output_temp = output_temp.replace('%(ext)s', self.download_format)
 
             ffmpeg = FFmpeg(
-                inputs={logger.final_destination: None, str(cover_art): None, },
+                inputs={output_temp: None, str(cover_art): None, },
                 outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -id3v2_version 3 '
                     '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
                     # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
