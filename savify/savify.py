@@ -74,6 +74,7 @@ class Savify:
             return
 
         queue = self._parse_query(query, query_type=query_type)
+        self.downloaded_cover_art = {}
 
         if not(len(queue) > 0):
             print('No tracks found using the given query.')
@@ -159,7 +160,14 @@ class Savify:
             return status
 
         try:
-            cover_art = download_file(track.cover_art_url, extension='jpg')
+            cover_art_name = f'{track.album_name} - {track.artist_names[0]}'
+
+            if cover_art_name in self.downloaded_cover_art:
+                cover_art = self.downloaded_cover_art[cover_art_name]
+            else:
+                cover_art = download_file(track.cover_art_url, extension='jpg')
+                self.downloaded_cover_art[cover_art_name] = cover_art
+            
             output_temp = output_temp.replace('%(ext)s', self.download_format)
 
             ffmpeg = FFmpeg(
