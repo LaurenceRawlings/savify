@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Tool for downloading Spotify songs to MP3 - Full Metadata & Cover Art",
+    description="Download Spotify songs to mp3 with full metadata and cover art!",
     entry_points={
         'console_scripts': [
             'savify=savify.cli:main',

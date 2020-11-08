@@ -154,7 +154,7 @@ texinfo_documents = [
      'Savify Documentation',
      author,
      'savify',
-     'ool for downloading Spotify songs to MP3 - Full Metadata & Cover Art',
+     'Download Spotify songs to mp3 with full metadata and cover art!',
      'Miscellaneous'),
 ]
 
