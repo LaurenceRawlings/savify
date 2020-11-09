@@ -16,12 +16,12 @@ class Spotify:
     def search(self, query, query_type=Type.TRACK):
         results = self.sp.search(q=query, limit=1, type=query_type)
         if len(results[query_type + 's']['items']) > 0:
-            if query_type == 'track':
-                return [Track(results[query_type + 's']['items'][0])]
-            elif query_type == 'album':
-                return _pack_album(self.sp.album(results['album' + 's']['items'][0]['id']))
-            elif query_type == 'playlist':
-                return _pack_playlist(self.sp.playlist(results['playlist' + 's']['items'][0]['id']))
+            if query_type == Type.TRACK:
+                return [Track(results[Type.TRACK + 's']['items'][0])]
+            elif query_type == Type.ALBUM:
+                return _pack_album(self.sp.album(results[Type.ALBUM + 's']['items'][0]['id']))
+            elif query_type == Type.PLAYLIST:
+                return self._get_playlist_tracks(results[Type.PLAYLIST + 's']['items'][0]['id'])
         else:
             return []
 
@@ -33,11 +33,22 @@ class Spotify:
             elif '/album/' in query:
                 return _pack_album(self.sp.album(query))
             elif '/playlist/' in query:
-                return _pack_playlist(self.sp.playlist(query))
+                return self._get_playlist_tracks(query)
             else:
                 return []
         except spotipy.exceptions.SpotifyException:
             return []
+
+
+    def _get_playlist_tracks(self, playlist_id):
+        playlist = self.sp.playlist(playlist_id)
+        results = playlist['tracks']
+        tracks = results['items']
+        while results['next']:
+            results = self.sp.next(results)
+            tracks.extend(results['items'])
+        playlist['tracks'] = tracks
+        return _pack_playlist(playlist)
 
 
 def _pack_album(album):
@@ -51,8 +62,8 @@ def _pack_album(album):
 
 def _pack_playlist(playlist):
     tracks = []
-    for track in playlist['tracks']['items']:
+    for track in playlist['tracks']:
         track_data = track['track']
         track_data['playlist'] = playlist['name']
         tracks.append(Track(track_data))
-    return tracks
+    return tracks    
