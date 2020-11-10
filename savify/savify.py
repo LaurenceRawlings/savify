@@ -23,9 +23,9 @@ def _sort_dir(track, group):
     if not group:
         return ''
 
-    group = group.replace('%artist%', track.artist_names[0])
-    group = group.replace('%album%', track.album_name)
-    group = group.replace('%playlist%', track.playlist)
+    group = group.replace('%artist%', safe_path_string(track.artist_names[0]))
+    group = group.replace('%album%', safe_path_string(track.album_name))
+    group = group.replace('%playlist%', safe_path_string(track.playlist))
 
     return f'{group}'
 
@@ -108,7 +108,7 @@ class Savify:
             'returncode': -1
          }
         query = str(track) + ' (AUDIO)'
-        output = self.output_path / safe_path_string(f'{_sort_dir(track, self.group)}') / safe_path_string(f'{track.artist_names[0]}) - {track.name}.{self.download_format}')
+        output = self.output_path / f'{_sort_dir(track, self.group)}' / safe_path_string(f'{track.artist_names[0]} - {track.name}.{self.download_format}')
         output_temp = f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s'
 
         if check_file(output):

@@ -1,6 +1,7 @@
 """Console script for Savify."""
 
 import sys
+import re
 import datetime
 import click
 from pathlib import Path
@@ -27,12 +28,20 @@ BANNER = f"""
 
 """
 
+def validate_group(ctx, param, value):
+    regex = r"^((%artist%|%album%|%playlist%)(\/(%artist%|%album%|%playlist%))*)+$"
+    if re.search(regex, value):
+        return value
+    else:
+        raise click.BadParameter('Group must be in the form x or x/x/x... where x in [%artist%, %album%, %playlist%]')
+
+
 @click.command()
 @click.option('-t', '--type', default='track', help='Query type for text search', type=click.Choice(['track', 'album', 'playlist']))
 @click.option('-q', '--quality', default='best', help='Bitrate for downloaded song(s)', type=click.Choice(['best', '320k', '256k', '192k', '128k', '96k', '32k', 'worst']))
 @click.option('-f', '--format', default='mp3', help='Format for downloaded song(s)', type=click.Choice(['mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav']))
 @click.option('-o', '--output', default=str(get_download_dir()), help='Output directory for downloaded song(s)', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
-@click.option('-g', '--group', default=None, help='Directory grouping for downloaded song(s)', type=click.STRING)
+@click.option('-g', '--group', default=None, callback=validate_group, help='Directory grouping for downloaded song(s)', type=click.STRING)
 @click.option('-q', '--quiet', is_flag=True, help='Hide Savify\'s output')
 @click.argument('query')
 def main(type, quality, format, output, group, quiet, query, args=None):
@@ -40,9 +49,9 @@ def main(type, quality, format, output, group, quiet, query, args=None):
     click.echo(BANNER)
     options = [type, quality, format, output, group]
 
-    type = convertType(type)
-    quality = convertQuality(quality)
-    format = convertFormat(format)
+    type = convert_type(type)
+    quality = convert_quality(quality)
+    format = convert_format(format)
     output = Path(output)
 
     s = Savify(quality=quality, download_format=format, output_path=output, group=group, quiet=quiet)
@@ -51,7 +60,7 @@ def main(type, quality, format, output, group, quiet, query, args=None):
     return 0
 
 
-def convertType(type):
+def convert_type(type):
     if type.lower() == 'track':
         return Type.TRACK
     elif type.lower() == 'album':
@@ -60,7 +69,7 @@ def convertType(type):
         return Type.PLAYLIST
 
 
-def convertQuality(quality):
+def convert_quality(quality):
     if quality.lower() == 'best':
         return Quality.BEST
     elif quality.lower() == '320k':
@@ -79,7 +88,7 @@ def convertQuality(quality):
         return Quality.WORST
 
 
-def convertFormat(format):
+def convert_format(format):
     if format.lower() == 'mp3':
         return Format.MP3
     elif format.lower() == 'aac':

@@ -79,5 +79,5 @@ def check_file(path: Path) -> bool:
 
 
 def safe_path_string(string):
-    keepcharacters = "!£$%^&()_-+=,.;'@#~[]{}"
+    keepcharacters = " !£$%^&()_-+=,.;'@#~[]{}"
     return "".join(c for c in string if c.isalnum() or c in keepcharacters).rstrip()
