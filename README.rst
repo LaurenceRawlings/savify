@@ -61,6 +61,8 @@ like to download the song in for maximum compatibility across all your
 devices. Available formats: mp3, aac, flac, m4a, opus, vorbis, and wav. 
 **Tags and cover art will only be applied to songs downloaded in mp3 format.**
 
+**Any questions or feedback join the** `Discord Server <https://discordapp.com/invite/SPuPEda>`__
+
 
 .. image:: images/donate.png
      :target: https://www.buymeacoffee.com/larry2k
@@ -88,12 +90,14 @@ If you are on Windows you can download the latest pre-packed executable
 package (which I recommend as you will not have to provide a Savify API key), 
 or you can download the python library and run the module directly using the CLI.
 
-Download the latest release `(coming soon)`
--------------------------------------------
+Download the latest release
+---------------------------
 
-Go `here <https://github.com/TechifyUK/savify/releases>`__ to download
-the latest Savify.exe then make sure you have FFmpeg downloaded and it
-added to your PATH as per the section above.
+Go `here <https://github.com/LaurenceRawlings/savify/releases>`__ to download
+the latest Savify.exe then make sure you have:
+
+- FFmpeg downloaded and it added to your Path
+- Spotify API credentials added to your environment variables
 
 That is it, you should be good to go! See some usage examples below.
 
@@ -102,14 +106,66 @@ Using the Python module
 
 ``$ pip install -U savify``
 
-`CLI COMING SOON`
-
-
 Usage
 =====
 
 Currently Savify only supports Spotify URLs and search queries,
 however support for Spotify URIs will be added in the future.
+
+CLI
+---
+
+If you have downloaded the latest Savify.exe from the releases page
+open your terminal and navigate to the same directory as the binary,
+then you can run:
+
+``$ Savify.exe``
+
+If you are using the Python package and savify is installed to your
+site-packages and your pip folder is in your PATH (which it should be 
+by default), from anywhere you can simply run:
+
+``$ savify``
+
+For help run:
+
+``$ savify --help``
+
+General usage
+~~~~~~~~~~~~~
+
+Using the default above:
+
+``$ savify "https://open.spotify.com/track/4Dju9g4NCz0LDxwcjonSvI"``
+
+Specifiying your own options:
+
+``$ savify "https://open.spotify.com/track/4Dju9g4NCz0LDxwcjonSvI" -q best -f mp3 -o "/path/to/downloads" -g "%artist%/%album%"``
+
+With a search query:
+
+``$ savify "You & I - Bru-C" -t track -q best -f mp3 -o "/path/to/downloads" -g "%artist%/%album%"``
+
+Grouping
+~~~~~~~~
+
+Available variables: ``%artist%, %album%, %playlist%``
+
+For example:
+
+``$ savify "You & I - Bru-C" -o /path/to/downloads -g "%artist%/%album%"``
+
+Would download in the following directory structure:
+
+.. code-block:: python
+
+     /path/to/downloads
+          |
+          |- /Bru-C
+               |
+               |- /Original Sounds
+                    |
+                    |- Bru-C - You & I.mp3
 
 Download Defaults
 -----------------
