@@ -1,6 +1,6 @@
 from pathlib import Path
 
-__all__ = ['clean', 'create_dir', 'get_download_dir', 'get_temp_dir', 'download_file', 'check_ffmpeg', 'check_env', 'check_file']
+__all__ = ['clean', 'create_dir', 'get_download_dir', 'get_temp_dir', 'download_file', 'check_ffmpeg', 'check_env', 'check_file', 'safe_path_string']
 
 def clean(path):
     import os
@@ -76,3 +76,8 @@ def check_file(path: Path) -> bool:
         return True
     else:
         return False
+
+
+def safe_path_string(string):
+    keepcharacters = "!£$%^&()_-+=,.;'@#~[]{}"
+    return "".join(c for c in string if c.isalnum() or c in keepcharacters).rstrip()

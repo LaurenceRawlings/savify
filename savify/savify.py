@@ -108,7 +108,7 @@ class Savify:
             'returncode': -1
          }
         query = str(track) + ' (AUDIO)'
-        output = self.output_path / f'{_sort_dir(track, self.group)}' / f'{track.artist_names[0]} - {track.name}.{self.download_format}'
+        output = self.output_path / safe_path_string(f'{_sort_dir(track, self.group)}') / safe_path_string(f'{track.artist_names[0]}) - {track.name}.{self.download_format}')
         output_temp = f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s'
 
         if check_file(output):
