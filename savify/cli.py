@@ -30,7 +30,7 @@ BANNER = f"""
 
 def validate_group(ctx, param, value):
     regex = r"^((%artist%|%album%|%playlist%)(\/(%artist%|%album%|%playlist%))*)+$"
-    if re.search(regex, value):
+    if re.search(regex, str(value)) or value is None:
         return value
     else:
         raise click.BadParameter('Group must be in the form x or x/x/x... where x in [%artist%, %album%, %playlist%]')

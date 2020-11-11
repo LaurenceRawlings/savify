@@ -18,3 +18,7 @@ __license__ = 'MIT'
 __docformat__ = 'restructuredtext en'
 
 __all__ = ['savify', 'types']
+
+def cli():
+    from .cli import main
+    main()
