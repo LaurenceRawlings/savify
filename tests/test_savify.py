@@ -7,7 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 from savify import savify
-from savify import cli
+import savify.cli as cli
 
 
 def test_command_line_interface():
