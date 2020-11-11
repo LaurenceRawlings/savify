@@ -63,7 +63,9 @@ def _pack_album(album):
 def _pack_playlist(playlist):
     tracks = []
     for track in playlist['tracks']:
-        track_data = track['track']
-        track_data['playlist'] = playlist['name']
-        tracks.append(Track(track_data))
+        if track is not None:
+            track_data = track['track']
+            if track_data is not None:
+                track_data['playlist'] = f"{playlist['name']} - {playlist['owner']['display_name']}"
+                tracks.append(Track(track_data))
     return tracks    
