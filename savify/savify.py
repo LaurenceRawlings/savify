@@ -138,7 +138,6 @@ class Savify:
             'postprocessor_args': [
                 '-write_id3v1', '1',
                 '-id3v2_version', '3',
-                '-q:a', '3',
                 '-metadata', f'title={track.name}',
                 '-metadata', f'album={track.album_name}',
                 '-metadata', f'date={track.release_date}',
@@ -188,7 +187,7 @@ class Savify:
 
                 ffmpeg = FFmpeg(
                     inputs={output_temp: None, str(cover_art): None, },
-                    outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -id3v2_version 3 '
+                    outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
                         '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
                         # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
                         # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
