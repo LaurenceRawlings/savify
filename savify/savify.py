@@ -3,6 +3,7 @@
 __all__ = ['Savify']
 
 import time
+import os
 from uuid import uuid1
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
@@ -31,13 +32,14 @@ def _sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=None, quiet=False):
+    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=None, quiet=False, retry=3):
         self.quality = quality
         self.download_format = download_format
         self.output_path = output_path
         self.group = group
         self.quiet = quiet
         self.logger = Logger(quiet=quiet)
+        self.retry = retry
 
         if api_credentials is None:
             if not(check_env()):
@@ -150,42 +152,63 @@ class Savify:
             options['postprocessor_args'].append('-codec:a')
             options['postprocessor_args'].append('libmp3lame')
 
-        try:
-            with YoutubeDL(options) as ydl:
-                ydl.download([query])
-        except:
-            status['returncode'] = 1
-            status['error'] = "Failed to download track."
-            print(logger.log)
-            return status
+        attempt = 0
+        downloaded = False
 
-        try:
-            cover_art_name = f'{track.album_name} - {track.artist_names[0]}'
+        while not downloaded:
+            attempt += 1
 
-            if cover_art_name in self.downloaded_cover_art:
-                cover_art = self.downloaded_cover_art[cover_art_name]
-            else:
-                cover_art = download_file(track.cover_art_url, extension='jpg')
-                self.downloaded_cover_art[cover_art_name] = cover_art
-            
-            output_temp = output_temp.replace('%(ext)s', self.download_format)
+            try:
+                with YoutubeDL(options) as ydl:
+                    ydl.download([query])
+                    downloaded = True
+            except:
+                if attempt > retry:
+                    status['returncode'] = 1
+                    status['error'] = "Failed to download track."
+                    print(logger.log)
+                    return status
 
-            ffmpeg = FFmpeg(
-                inputs={output_temp: None, str(cover_art): None, },
-                outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -id3v2_version 3 '
-                    '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
-                    # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
-                    # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
-                    # 'start_duration=1:start_threshold=-60dB:'
-                    # 'detection=peak,aformat=dblp,areverse"'
-                    }
-            )
+        attempt = 0
+        added_artwork = False
 
-            ffmpeg.run()
-        except:
-            status['returncode'] = 2
-            status['error'] = "Failed to add cover art."
-            return status
+        while not added_artwork:
+            attempt += 1
+
+            try:
+                cover_art_name = f'{track.album_name} - {track.artist_names[0]}'
+
+                if cover_art_name in self.downloaded_cover_art:
+                    cover_art = self.downloaded_cover_art[cover_art_name]
+                else:
+                    cover_art = download_file(track.cover_art_url, extension='jpg')
+                    self.downloaded_cover_art[cover_art_name] = cover_art
+                
+                output_temp = output_temp.replace('%(ext)s', self.download_format)
+
+                ffmpeg = FFmpeg(
+                    inputs={output_temp: None, str(cover_art): None, },
+                    outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -id3v2_version 3 '
+                        '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
+                        # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
+                        # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
+                        # 'start_duration=1:start_threshold=-60dB:'
+                        # 'detection=peak,aformat=dblp,areverse"'
+                        }
+                )
+
+                ffmpeg.run()
+
+                added_artwork = True
+            except:
+                if attempt > retry:
+                    try:
+                        os.rename(output_temp, output)
+                        added_artwork = True
+                    except:
+                        status['returncode'] = 2
+                        status['error'] = "Failed to add cover art."
+                        return status
 
         status['returncode'] = 0
         return status
