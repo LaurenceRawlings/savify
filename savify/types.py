@@ -23,10 +23,10 @@ class Format:
 
 class Quality:
     WORST = '9'
-    Q32K = '32K'
-    Q96K = '96K'
-    Q128K = '128K'
-    Q192K = '192K'
-    Q256K = '256K'
-    Q320K =  '320K'
+    Q32K = '32'
+    Q96K = '96'
+    Q128K = '128'
+    Q192K = '192'
+    Q256K = '256'
+    Q320K =  '320'
     BEST = '0'

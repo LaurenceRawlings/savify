@@ -42,7 +42,7 @@ def validate_group(ctx, param, value):
 @click.option('-f', '--format', default='mp3', help='Format for downloaded song(s)', type=click.Choice(['mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav']))
 @click.option('-o', '--output', default=str(get_download_dir()), help='Output directory for downloaded song(s)', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
 @click.option('-g', '--group', default=None, callback=validate_group, help='Directory grouping for downloaded song(s)', type=click.STRING)
-@click.option('-q', '--quiet', is_flag=True, help='Hide Savify\'s output')
+@click.option('--quiet', is_flag=True, help='Hide Savify\'s output')
 @click.argument('query')
 def main(type, quality, format, output, group, quiet, query, args=None):
     click.clear()
