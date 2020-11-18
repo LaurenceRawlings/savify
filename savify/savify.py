@@ -162,7 +162,7 @@ class Savify:
                     ydl.download([query])
                     downloaded = True
             except:
-                if attempt > retry:
+                if attempt > self.retry:
                     status['returncode'] = 1
                     status['error'] = "Failed to download track."
                     print(logger.log)
@@ -200,7 +200,7 @@ class Savify:
 
                 added_artwork = True
             except:
-                if attempt > retry:
+                if attempt > self.retry:
                     try:
                         os.rename(output_temp, output)
                         added_artwork = True
