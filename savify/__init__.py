@@ -13,7 +13,7 @@ from .types import *
 __title__ = 'Savify'
 __author__ = """Laurence Rawlings"""
 __email__ = 'contact@laurencerawlings.com'
-__version__ = '2.0.8'
+__version__ = '2.0.9'
 __license__ = 'MIT'
 __docformat__ = 'restructuredtext en'
 
