@@ -51,7 +51,7 @@ class Savify:
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
-    def _parse_query(self, query, query_type=Type.TRACK):
+    def _parse_query(self, query, query_type=Type.TRACK) -> list:
         result = []
 
         if validators.url(query):
@@ -70,7 +70,7 @@ class Savify:
 
         return result
 
-    def download(self, query, query_type=Type.TRACK):
+    def download(self, query, query_type=Type.TRACK) -> None:
         if not (check_ffmpeg()):
             print("FFmpeg must be installed to use Savify!")
             return
@@ -102,15 +102,17 @@ class Savify:
 
         print(message)
 
-    def _download(self, track: Track):
+    def _download(self, track: Track) -> dict:
         logger = Logger(quiet=self.quiet)
         status = {
             'track': track,
             'returncode': -1
         }
+
         query = str(track) + ' (AUDIO)'
         output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
             f'{track.artist_names[0]} - {track.name}.{self.download_format}')
+
         output_temp = f'{str(self.path_holder.get_temp_dir())}/{str(uuid1())}.%(ext)s'
 
         if check_file(output):
@@ -130,11 +132,13 @@ class Savify:
             'prefer_ffmpeg': True,
             'default_search': 'ytsearch',
             'logger': logger,
+
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': self.download_format,
                 'preferredquality': self.quality,
             }],
+
             'postprocessor_args': [
                 '-write_id3v1', '1',
                 '-id3v2_version', '3',
@@ -161,6 +165,7 @@ class Savify:
                 with YoutubeDL(options) as ydl:
                     ydl.download([query])
                     downloaded = True
+
             except Exception:
                 if attempt > self.retry:
                     status['returncode'] = 1
