@@ -32,23 +32,24 @@ def _sort_dir(track, group):
 
 
 class Savify:
-    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=get_download_dir(), group=None, quiet=False, retry=3):
-        self.quality = quality
+    def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
+                 group=None, quiet: bool = False, path_holder: PathHolder = None, retry: int = 3):
+
         self.download_format = download_format
-        self.output_path = output_path
+        self.logger = Logger(quiet=quiet)
+        self.path_holder = path_holder
+        self.quality = quality
         self.group = group
         self.quiet = quiet
-        self.logger = Logger(quiet=quiet)
         self.retry = retry
 
         if api_credentials is None:
-            if not(check_env()):
+            if not (check_env()):
                 raise RuntimeError('Spotify API credentials not setup.')
             else:
                 self.spotify = Spotify()
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
-
 
     def _parse_query(self, query, query_type=Type.TRACK):
         result = []
@@ -69,16 +70,15 @@ class Savify:
 
         return result
 
-
     def download(self, query, query_type=Type.TRACK):
-        if not(check_ffmpeg()):
+        if not (check_ffmpeg()):
             print("FFmpeg must be installed to use Savify!")
             return
 
         queue = self._parse_query(query, query_type=query_type)
         self.downloaded_cover_art = {}
 
-        if not(len(queue) > 0):
+        if not (len(queue) > 0):
             print('No tracks found using the given query.')
             return
 
@@ -91,9 +91,9 @@ class Savify:
                 if job['returncode'] != 0:
                     failed_jobs.append(job)
 
-        clean(get_temp_dir())
+        clean(self.path_holder.get_temp_dir())
 
-        message = (f'\nDownload Finished! \nCompleted {len(queue) - len(failed_jobs)}/{len(queue)} tracks in {time.time() - start_time:.4f}s')
+        message = f'\nDownload Finished! \nCompleted {len(queue) - len(failed_jobs)}/{len(queue)} tracks in {time.time() - start_time:.4f}s'
 
         if len(failed_jobs) > 0:
             message += '\n\nFailed Tracks:\n'
@@ -102,16 +102,16 @@ class Savify:
 
         print(message)
 
-
     def _download(self, track: Track):
         logger = Logger(quiet=self.quiet)
         status = {
             'track': track,
             'returncode': -1
-         }
+        }
         query = str(track) + ' (AUDIO)'
-        output = self.output_path / f'{_sort_dir(track, self.group)}' / safe_path_string(f'{track.artist_names[0]} - {track.name}.{self.download_format}')
-        output_temp = f'{str(get_temp_dir())}/{str(uuid1())}.%(ext)s'
+        output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
+            f'{track.artist_names[0]} - {track.name}.{self.download_format}')
+        output_temp = f'{str(self.path_holder.get_temp_dir())}/{str(uuid1())}.%(ext)s'
 
         if check_file(output):
             print('Song already downloaded. Skipping...')
@@ -161,7 +161,7 @@ class Savify:
                 with YoutubeDL(options) as ydl:
                     ydl.download([query])
                     downloaded = True
-            except:
+            except Exception:
                 if attempt > self.retry:
                     status['returncode'] = 1
                     status['error'] = "Failed to download track."
@@ -180,31 +180,31 @@ class Savify:
                 if cover_art_name in self.downloaded_cover_art:
                     cover_art = self.downloaded_cover_art[cover_art_name]
                 else:
-                    cover_art = download_file(track.cover_art_url, extension='jpg')
+                    cover_art = self.path_holder.download_file(track.cover_art_url, extension='jpg')
                     self.downloaded_cover_art[cover_art_name] = cover_art
-                
+
                 output_temp = output_temp.replace('%(ext)s', self.download_format)
 
                 ffmpeg = FFmpeg(
                     inputs={output_temp: None, str(cover_art): None, },
                     outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
-                        '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
-                        # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
-                        # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
-                        # 'start_duration=1:start_threshold=-60dB:'
-                        # 'detection=peak,aformat=dblp,areverse"'
-                        }
+                                     '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
+                             # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
+                             # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
+                             # 'start_duration=1:start_threshold=-60dB:'
+                             # 'detection=peak,aformat=dblp,areverse"'
+                             }
                 )
 
                 ffmpeg.run()
 
                 added_artwork = True
-            except:
+            except Exception:
                 if attempt > self.retry:
                     try:
                         os.rename(output_temp, output)
                         added_artwork = True
-                    except:
+                    except Exception:
                         status['returncode'] = 2
                         status['error'] = "Failed to add cover art."
                         return status

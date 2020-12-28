@@ -1,28 +1,21 @@
-class Logger(object):
+class Logger:
     def __init__(self, quiet=False):
         self.log = ''
         self.quiet = quiet
 
-    
-    def log(self, msg):
-        self.log += msg + '\n'
+    def __print(self, tag: str, message: str):
+        self.log += message + '\n'
         if not self.quiet:
-            print('[INFO] ' + msg)
+            print(f'[{tag}] {message}')
 
+    def log(self, message: str):
+        self.__print('INFO', message)
 
-    def warning(self, msg):
-        self.log += msg + '\n'
-        if not self.quiet:
-            print('[WARN] ' + msg)
+    def warning(self, message: str):
+        self.__print('WARN', message)
 
+    def error(self, message: str):
+        self.__print('ERROR', message)
 
-    def error(self, msg):
-        self.log += msg + '\n'
-        if not self.quiet:
-            print('[ERROR] ' + msg)
-
-
-    def debug(self, msg):
-        self.log += msg + '\n'
-        if not self.quiet:
-            print('[DEBUG] ' + msg)
+    def debug(self, message: str):
+        self.__print('DEBUG', message)

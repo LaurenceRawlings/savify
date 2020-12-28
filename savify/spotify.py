@@ -11,7 +11,8 @@ class Spotify:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
         else:
             id, secret = api_credentials
-            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=id, client_secret=secret))
+            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
+                client_id=id, client_secret=secret))
 
     def search(self, query, query_type=Type.TRACK):
         results = self.sp.search(q=query, limit=1, type=query_type)
@@ -25,7 +26,6 @@ class Spotify:
         else:
             return []
 
-
     def link(self, query):
         try:
             if '/track/' in query:
@@ -38,7 +38,6 @@ class Spotify:
                 return []
         except spotipy.exceptions.SpotifyException:
             return []
-
 
     def _get_playlist_tracks(self, playlist_id):
         playlist = self.sp.playlist(playlist_id)
@@ -68,4 +67,5 @@ def _pack_playlist(playlist):
             if track_data is not None:
                 track_data['playlist'] = f"{playlist['name']} - {playlist['owner']['display_name']}"
                 tracks.append(Track(track_data))
-    return tracks    
+
+    return tracks
