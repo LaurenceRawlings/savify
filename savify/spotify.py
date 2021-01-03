@@ -11,9 +11,10 @@ class Spotify:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
         else:
             id, secret = api_credentials
-            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=id, client_secret=secret))
+            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
+                client_id=id, client_secret=secret))
 
-    def search(self, query, query_type=Type.TRACK):
+    def search(self, query, query_type=Type.TRACK) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
         if len(results[query_type + 's']['items']) > 0:
             if query_type == Type.TRACK:
@@ -25,8 +26,7 @@ class Spotify:
         else:
             return []
 
-
-    def link(self, query):
+    def link(self, query) -> list:
         try:
             if '/track/' in query:
                 return [Track(self.sp.track(query))]
@@ -39,28 +39,30 @@ class Spotify:
         except spotipy.exceptions.SpotifyException:
             return []
 
-
-    def _get_playlist_tracks(self, playlist_id):
+    def _get_playlist_tracks(self, playlist_id) -> list:
         playlist = self.sp.playlist(playlist_id)
         results = playlist['tracks']
         tracks = results['items']
         while results['next']:
             results = self.sp.next(results)
             tracks.extend(results['items'])
+
         playlist['tracks'] = tracks
+
         return _pack_playlist(playlist)
 
 
-def _pack_album(album):
+def _pack_album(album) -> list:
     tracks = []
     for track in album['tracks']['items']:
         track_data = track
         track_data['album'] = album
         tracks.append(Track(track_data))
+
     return tracks
 
 
-def _pack_playlist(playlist):
+def _pack_playlist(playlist) -> list:
     tracks = []
     for track in playlist['tracks']:
         if track is not None:
@@ -68,4 +70,5 @@ def _pack_playlist(playlist):
             if track_data is not None:
                 track_data['playlist'] = f"{playlist['name']} - {playlist['owner']['display_name']}"
                 tracks.append(Track(track_data))
-    return tracks    
+
+    return tracks
