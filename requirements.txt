@@ -2,4 +2,4 @@ ffmpy>=0.2.3
 spotipy>=2.16.1
 tldextract>=3.0.2
 validators>=0.18.1
-youtube-dl>=2020.11.1.1
+youtube-dl>=2021.1.16
