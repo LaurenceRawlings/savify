@@ -42,7 +42,8 @@ def _progress(data):
 
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
-                 group=None, quiet: bool = False, path_holder: PathHolder = None, retry: int = 3):
+                 group=None, quiet: bool = False, path_holder: PathHolder = None, retry: int = 3,
+                 ydl_options: dict = {}, skip_cover_art: bool = False):
 
         self.downloaded_cover_art = {}
         self.download_format = download_format
@@ -52,6 +53,8 @@ class Savify:
         self.group = group
         self.quiet = quiet
         self.retry = retry
+        self.ydl_options = ydl_options
+        self.skip_cover_art = skip_cover_art
 
         if api_credentials is None:
             if not (check_env()):
@@ -160,6 +163,7 @@ class Savify:
                 '-metadata', f'disc={track.disc_number}',
                 '-metadata', f'track={track.track_number}/{track.album_track_count}',
             ],
+            **self.ydl_options,
         }
 
         if self.download_format == Format.MP3:
@@ -187,7 +191,7 @@ class Savify:
         attempt = 0
         added_artwork = False
 
-        if not self.download_format == Format.MP3:
+        if self.download_format != Format.MP3 or self.skip_cover_art:
             status['returncode'] = 0
             return status
 
