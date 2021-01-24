@@ -250,8 +250,6 @@ Savify optional constructor arguments (se above for defaults):
 
 .. code-block:: python
 
-     from pathlib import Path
-
      from savify import Savify
      from savify.types import Type, Format, Quality
      from savify.utils import PathHolder
