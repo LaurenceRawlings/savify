@@ -166,6 +166,8 @@ class Savify:
             **self.ydl_options,
         }
 
+        output_temp = output_temp.replace('%(ext)s', self.download_format)
+
         if self.download_format == Format.MP3:
             options['postprocessor_args'].append('-codec:a')
             options['postprocessor_args'].append('libmp3lame')
@@ -188,14 +190,22 @@ class Savify:
                     print(logger.log)
                     return status
 
-        attempt = 0
-        added_artwork = False
-
         if self.download_format != Format.MP3 or self.skip_cover_art:
+            try:
+                import shutil
+                shutil.move(output_temp, output)
+            except RuntimeError:
+                status['returncode'] = 1
+                status['error'] = "Unknown."
+                return status
+
             status['returncode'] = 0
             return status
 
         from ffmpy import FFRuntimeError
+
+        attempt = 0
+        added_artwork = False
 
         while not added_artwork:
             attempt += 1
@@ -208,8 +218,6 @@ class Savify:
                 else:
                     cover_art = self.path_holder.download_file(track.cover_art_url, extension='jpg')
                     self.downloaded_cover_art[cover_art_name] = cover_art
-
-                output_temp = output_temp.replace('%(ext)s', self.download_format)
 
                 ffmpeg = FFmpeg(
                     inputs={output_temp: None, str(cover_art): None, },
@@ -229,11 +237,12 @@ class Savify:
             except FFRuntimeError:
                 if attempt > self.retry:
                     try:
-                        os.rename(output_temp, output)
+                        import shutil
+                        shutil.move(output_temp, output)
                         added_artwork = True
                     except RuntimeError:
                         status['returncode'] = 1
-                        status['error'] = "Failed to add cover art."
+                        status['error'] = "Unknown."
                         return status
 
         status['returncode'] = 0
