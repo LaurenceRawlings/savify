@@ -13,7 +13,7 @@ import tldextract
 from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg
 
-from .utils import *
+from .utils import PathHolder, safe_path_string, check_env, check_ffmpeg, check_file, create_dir, clean
 from .types import *
 from .spotify import Spotify
 from .track import Track
@@ -102,7 +102,8 @@ class Savify:
 
         clean(self.path_holder.get_temp_dir())
 
-        message = f'\nDownload Finished! \nCompleted {len(queue) - len(failed_jobs)}/{len(queue)} tracks in {time.time() - start_time:.4f}s'
+        message = f'\nDownload Finished! \nCompleted {len(queue) - len(failed_jobs)}/{len(queue)}' \
+                  f' tracks in {time.time() - start_time:.4f}s '
 
         if len(failed_jobs) > 0:
             message += '\n\nFailed Tracks:\n'
@@ -190,6 +191,8 @@ class Savify:
             status['returncode'] = 0
             return status
 
+        from ffmpy import FFRuntimeError
+
         while not added_artwork:
             attempt += 1
 
@@ -219,7 +222,7 @@ class Savify:
 
                 added_artwork = True
 
-            except RuntimeError:
+            except FFRuntimeError:
                 if attempt > self.retry:
                     try:
                         os.rename(output_temp, output)
