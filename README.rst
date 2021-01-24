@@ -256,7 +256,7 @@ Savify optional constructor arguments (se above for defaults):
 
      # Quality Options: WORST, Q32K, Q96K, Q128K, Q192K, Q256K, Q320K, BEST
      # Format Options: MP3, AAC, FLAC, M4A, OPUS, VORBIS, WAV
-     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, output_path=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%')
+     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, path_holder=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%')
 
 The group argument is used to sort you downloaded songs inside the 
 output path. Possible variables for the path string are: %artist%, %album%, 
