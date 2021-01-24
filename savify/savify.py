@@ -31,10 +31,20 @@ def _sort_dir(track, group):
     return f'{group}'
 
 
+def _progress(data):
+    if data['status'] == 'downloading':
+        pass
+    elif data['status'] == 'finished':
+        pass
+    elif data['status'] == 'error':
+        raise RuntimeError('youtube-dl download failed')
+
+
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, quiet: bool = False, path_holder: PathHolder = None, retry: int = 3):
 
+        self.downloaded_cover_art = {}
         self.download_format = download_format
         self.logger = Logger(quiet=quiet)
         self.path_holder = path_holder
@@ -76,7 +86,6 @@ class Savify:
             return
 
         queue = self._parse_query(query, query_type=query_type)
-        self.downloaded_cover_art = {}
 
         if not (len(queue) > 0):
             print('No tracks found using the given query.')
@@ -132,6 +141,7 @@ class Savify:
             'prefer_ffmpeg': True,
             'default_search': 'ytsearch',
             'logger': logger,
+            'progress_hooks': [_progress],
 
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
@@ -166,7 +176,7 @@ class Savify:
                     ydl.download([query])
                     downloaded = True
 
-            except Exception:
+            except RuntimeError:
                 if attempt > self.retry:
                     status['returncode'] = 1
                     status['error'] = "Failed to download track."
@@ -175,6 +185,10 @@ class Savify:
 
         attempt = 0
         added_artwork = False
+
+        if not self.download_format == Format.MP3:
+            status['returncode'] = 0
+            return status
 
         while not added_artwork:
             attempt += 1
@@ -204,13 +218,14 @@ class Savify:
                 ffmpeg.run()
 
                 added_artwork = True
-            except Exception:
+
+            except RuntimeError:
                 if attempt > self.retry:
                     try:
                         os.rename(output_temp, output)
                         added_artwork = True
-                    except Exception:
-                        status['returncode'] = 2
+                    except RuntimeError:
+                        status['returncode'] = 1
                         status['error'] = "Failed to add cover art."
                         return status
 
