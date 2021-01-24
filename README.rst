@@ -46,7 +46,8 @@ Savify
 ======
 
 `Savify <https://github.com/LaurenceRawlings/savify>`__ is a python
-library that downloads songs from Spotify. Given a query, Savify will find
+library that downloads songs from a selected provider (by default YouTube), 
+and then scrapes the meta information from Spotify. Given a query, Savify will find
 and download songs to mp3 format with quality as high as **320 kb/s**! 
 The application will also scrape and write **id3v2 tags** to all your 
 songs. Tags include **title, artists, year, album and even cover-art!**
@@ -60,6 +61,12 @@ Inside the application, you can specify which format and quality you would
 like to download the song in for maximum compatibility across all your 
 devices. Available formats: mp3, aac, flac, m4a, opus, vorbis, and wav. 
 **Tags and cover art will only be applied to songs downloaded in mp3 format.**
+
+Please note this library does not go against Spotify TOS in any way, songs
+are not ripped directly from Spotiy, but are instead downloaded from other
+sources such as YouTube and Soundcloud using the youtube-dl python library.
+Spotify is only used to gather accurate meta information to be embedded into
+the downloaded song files.
 
 **Any questions or feedback join the** `Discord Server <https://discordapp.com/invite/SPuPEda>`__
 
