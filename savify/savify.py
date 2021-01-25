@@ -194,7 +194,7 @@ class Savify:
             try:
                 import shutil
                 shutil.move(output_temp, output)
-            except RuntimeError:
+            except Exception:
                 status['returncode'] = 1
                 status['error'] = "Unknown."
                 return status
@@ -240,7 +240,7 @@ class Savify:
                         import shutil
                         shutil.move(output_temp, output)
                         added_artwork = True
-                    except RuntimeError:
+                    except Exception:
                         status['returncode'] = 1
                         status['error'] = "Unknown."
                         return status
