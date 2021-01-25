@@ -220,8 +220,8 @@ class Savify:
                     self.downloaded_cover_art[cover_art_name] = cover_art
 
                 ffmpeg = FFmpeg(
-                    inputs={output_temp: None, str(cover_art): None, },
-                    outputs={output: '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
+                    inputs={str(output_temp): None, str(cover_art): None, },
+                    outputs={str(output): '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
                                      '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
                              # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
                              # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
