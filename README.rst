@@ -72,7 +72,7 @@ the downloaded song files.
 
 
 .. image:: images/donate.png
-     :target: https://www.buymeacoffee.com/larry2k
+     :target: https://www.buymeacoffee.com/laurencer
      :alt: Donate
 
 FFmpeg
