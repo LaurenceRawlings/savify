@@ -80,6 +80,8 @@ class Savify:
                 result = self.spotify.search(query, query_type=Type.ALBUM)
             elif query_type == Type.PLAYLIST:
                 result = self.spotify.search(query, query_type=Type.PLAYLIST)
+            elif query_type == Type.ARTIST:
+                result = self.spotify.search(query, query_type=Type.ARTIST)
 
         return result
 
