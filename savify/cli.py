@@ -9,6 +9,9 @@ from . import __version__, __author__
 from .types import *
 from .utils import PathHolder
 from .savify import Savify
+from .logger import Logger, LogLevel
+from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetError, UrlNotSupportedError, \
+    InternetConnectionError
 
 BANNER = rf"""
 
@@ -37,6 +40,8 @@ def validate_group(ctx, param, value):
 
 
 @click.command()
+@click.help_option()
+@click.version_option(version=__version__)
 @click.option('-t', '--type', default='track', help='Query type for text search.',
               type=click.Choice(['track', 'album', 'playlist']))
 @click.option('-q', '--quality', default='best', help='Bitrate for downloaded song(s).',
@@ -50,20 +55,42 @@ def validate_group(ctx, param, value):
 @click.option('-p', '--path', default=None, help='Path to directory to be used for data and temporary files.',
               type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
 @click.option('--skip-cover-art', is_flag=True, help='Don\'t add cover art to downloaded song(s).')
-@click.option('--quiet', is_flag=True, help='Hide Savify\'s output.')
+@click.option('--silent', is_flag=True, help='Hide all output to stdout, overrides verbosity level.')
+@click.option('-v', '--verbose', count=True, help='Change the log verbosity level. [-v, -vv]')
 @click.argument('query')
-def main(type, quality, format, output, group, path, quiet, query, skip_cover_art, args=None):
-    click.clear()
-    click.echo(BANNER)
+def main(type, quality, format, output, group, path, verbose, silent, query, skip_cover_art, args=None):
+    if not silent:
+        click.clear()
+        click.echo(BANNER)
+        log_level = convert_log_level(verbose)
+    else:
+        log_level = LogLevel.SILENT
 
     path_holder = PathHolder(path, output)
     output_format = convert_format(format)
     query_type = convert_type(type)
     quality = convert_quality(quality)
 
-    s = Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group, quiet=quiet,
-               skip_cover_art=skip_cover_art)
-    s.download(query, query_type=query_type)
+    logger = Logger(log_level)
+
+    try:
+        s = Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
+                   skip_cover_art=skip_cover_art, logger=logger)
+    except FFmpegNotInstalledError as ex:
+        logger.error(ex.message)
+        return 1
+    except SpotifyApiCredentialsNotSetError as ex:
+        logger.error(ex.message)
+        return 1
+
+    try:
+        s.download(query, query_type=query_type)
+    except UrlNotSupportedError as ex:
+        logger.error(ex.message)
+        return 1
+    except InternetConnectionError as ex:
+        logger.error(ex.message)
+        return 1
 
     return 0
 
@@ -111,6 +138,15 @@ def convert_format(output_format):
         return Format.VORBIS
     elif output_format.lower() == 'wav':
         return Format.WAV
+
+
+def convert_log_level(verbosity: int):
+    if verbosity == 1:
+        return LogLevel.WARN
+    elif verbosity == 2:
+        return LogLevel.DEBUG
+    else:
+        return LogLevel.QUIET
 
 
 if __name__ == "__main__":
