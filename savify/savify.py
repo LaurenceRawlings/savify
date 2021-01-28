@@ -3,7 +3,6 @@
 __all__ = ['Savify']
 
 import time
-from uuid import uuid1
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
@@ -140,7 +139,7 @@ class Savify:
         output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
             f'{str(track)}.{self.download_format}')
 
-        output_temp = f'{str(self.path_holder.get_temp_dir())}/{str(uuid1())}.%(ext)s'
+        output_temp = f'{str(self.path_holder.get_temp_dir())}/{track.id}.%(ext)s'
 
         if check_file(output):
             self.logger.warning(f'{str(track)} -> is already downloaded. Skipping...')

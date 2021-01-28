@@ -2,21 +2,55 @@ class Track:
     def __init__(self, spotify_data):
         self._data = spotify_data
 
-        self._album_name = spotify_data['album']['name']
-        self._cover_art_url = spotify_data['album']['images'][0]['url']
-        self._release_date = spotify_data['album']['release_date']
-        self._artists = spotify_data['artists']
-        self._disc_number = spotify_data['disc_number']
-        self._url = spotify_data['external_urls']['spotify']
-        self._id = spotify_data['id']
-        self._name = spotify_data['name']
-        self._track_number = spotify_data['track_number']
-        self._album_track_count = spotify_data['album']['total_tracks']
-        self._uri = spotify_data['uri']
-        if 'playlist' in spotify_data:
+        try:
+            self._album_name = spotify_data['album']['name']
+        except KeyError:
+            self._album_name = 'Unknown Album'
+        try:
+            self._release_date = spotify_data['album']['release_date']
+        except KeyError:
+            self._release_date = ''
+        try:
+            self._artists = spotify_data['artists']
+        except KeyError:
+            self._artists = [{'name': 'Unknown Artist'}]
+        try:
+            self._disc_number = spotify_data['disc_number']
+        except KeyError:
+            self._disc_number = ''
+        try:
+            self._url = spotify_data['external_urls']['spotify']
+        except KeyError:
+            self._url = ''
+        try:
+            self._id = spotify_data['id']
+        except KeyError:
+            from uuid import uuid1
+            self._id = str(uuid1())
+        try:
+            self._name = spotify_data['name']
+        except KeyError:
+            self._name = 'Unknown Song'
+        try:
+            self._track_number = spotify_data['track_number']
+        except KeyError:
+            self._track_number = ''
+        try:
+            self._album_track_count = spotify_data['album']['total_tracks']
+        except KeyError:
+            self._album_track_count = ''
+        try:
+            self._uri = spotify_data['uri']
+        except KeyError:
+            self._uri = ''
+        try:
             self._playlist = spotify_data['playlist']
-        else:
+        except KeyError:
             self._playlist = ''
+        try:
+            self._cover_art_url = spotify_data['album']['images'][0]['url']
+        except KeyError or IndexError:
+            self._cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
 
     @property
     def album_name(self):
@@ -32,7 +66,10 @@ class Track:
 
     @property
     def artist_names(self):
-        return [artist['name'] for artist in self._artists]
+        try:
+            return [artist['name'] for artist in self._artists]
+        except KeyError:
+            return ['Unknown Artist']
 
     @property
     def disc_number(self):
