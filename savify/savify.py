@@ -75,6 +75,8 @@ class Savify:
         else:
             self.logger = logger
 
+        clean(self.path_holder.get_temp_dir())
+
     def _parse_query(self, query, query_type=Type.TRACK) -> list:
         result = []
 
@@ -262,5 +264,10 @@ class Savify:
                         return status
 
         status['returncode'] = 0
+        try:
+            from os import remove
+            remove(output_temp)
+        except OSError:
+            pass
         self.logger.info(f'Downloaded -> {str(track)}')
         return status
