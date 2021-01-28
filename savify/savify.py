@@ -47,7 +47,8 @@ def _progress(data):
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, log_level: int = LogLevel.QUIET, path_holder: PathHolder = None, retry: int = 3,
-                 ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None):
+                 ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
+                 ffmpeg_location: str = None):
 
         self.downloaded_cover_art = {}
         self.download_format = download_format
@@ -57,6 +58,7 @@ class Savify:
         self.retry = retry
         self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
+        self.ffmpeg_location = ffmpeg_location
 
         if api_credentials is None:
             if not (check_env()):
@@ -66,7 +68,7 @@ class Savify:
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
-        if not (check_ffmpeg()):
+        if not check_ffmpeg() and self.ffmpeg_location is None:
             raise FFmpegNotInstalledError
 
         if logger is None:
@@ -184,6 +186,9 @@ class Savify:
             options['postprocessor_args'].append('-codec:a')
             options['postprocessor_args'].append('libmp3lame')
 
+        if self.ffmpeg_location is not None:
+            options['ffmpeg_location'] = self.ffmpeg_location
+
         attempt = 0
         downloaded = False
 
@@ -231,15 +236,16 @@ class Savify:
                 cover_art = self.path_holder.download_file(track.cover_art_url, extension='jpg')
                 self.downloaded_cover_art[cover_art_name] = cover_art
 
-            ffmpeg = FFmpeg(
-                inputs={str(output_temp): None, str(cover_art): None, },
-                outputs={str(output): '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
-                                      '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
-                         # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
-                         # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
-                         # 'start_duration=1:start_threshold=-60dB:'
-                         # 'detection=peak,aformat=dblp,areverse"'
-                         }
+            ffmpeg = FFmpeg(executable=self.ffmpeg_location,
+            inputs = {str(output_temp): None, str(cover_art): None, },
+                     outputs = {
+                str(output): '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
+                             '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
+                # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
+                # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
+                # 'start_duration=1:start_threshold=-60dB:'
+                # 'detection=peak,aformat=dblp,areverse"'
+                }
             )
 
             try:
