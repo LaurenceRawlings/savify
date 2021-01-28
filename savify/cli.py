@@ -81,7 +81,7 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
         s = setup()
     except FFmpegNotInstalledError as ex:
         from .ffmpegdl import FFmpegDL
-        ffmpeg_dl = FFmpegDL()
+        ffmpeg_dl = FFmpegDL(str(path_holder.data_path))
 
         if not ffmpeg_dl.check():
             logger.error(ex.message)

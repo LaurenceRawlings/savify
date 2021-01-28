@@ -3,26 +3,30 @@ from pathlib import Path
 from shutil import move, rmtree
 from sys import platform
 
+ffmpeg_static_win = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'
+ffmpeg_static_linux = 'https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz'
+ffmpeg_static_mac = 'https://evermeet.cx/ffmpeg/getrelease/zip'
+
 
 class FFmpegDL:
-    def __init__(self):
+    def __init__(self, data: str):
         from uuid import uuid1
-        home = Path.home()
+        self.data_path = Path(data) / 'ffmpeg'
 
         if platform == 'win32':
-            self.temp = home / 'AppData/Roaming/Savify/ffmpeg' / str(uuid1())
-            self.download_link = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'
-            self.final_location = self.temp.parent / 'bin' / 'ffmpeg.exe'
+            self.temp = self.data_path / str(uuid1())
+            self.download_link = ffmpeg_static_win
+            self.final_location = self.data_path / 'bin' / 'ffmpeg.exe'
             self.platform_task = self._download_win
         elif platform == 'linux':
-            self.temp = home / '.local/share/Savify/ffmpeg' / str(uuid1())
-            self.download_link = 'https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz'
-            self.final_location = self.temp.parent / 'ffmpeg'
+            self.temp = self.data_path / str(uuid1())
+            self.download_link = ffmpeg_static_linux
+            self.final_location = self.data_path / 'ffmpeg'
             self.platform_task = self._download_linux
         elif platform == 'darwin':
-            self.temp = home / 'Library/Application Support/Savify/ffmpeg' / str(uuid1())
-            self.download_link = 'https://evermeet.cx/ffmpeg/getrelease/zip'
-            self.final_location = self.temp.parent / 'ffmpeg'
+            self.temp = self.data_path / str(uuid1())
+            self.download_link = ffmpeg_static_mac
+            self.final_location = self.data_path / 'ffmpeg'
             self.platform_task = self._download_mac
         else:
             raise RuntimeError(f'Platform not supported! [{platform}]')
@@ -35,7 +39,7 @@ class FFmpegDL:
     def download(self, force=False):
         downloaded = self.check()
         if not downloaded or force:
-            rmtree(self.temp.parent)
+            rmtree(self.data_path)
             self._download()
             self.platform_task()
 
@@ -72,5 +76,5 @@ class FFmpegDL:
             tf.extractall(self.temp)
 
     def _cleanup(self, ffmpeg_files):
-        move(ffmpeg_files, self.temp.parent)
+        move(ffmpeg_files, self.data_path)
         rmtree(self.temp)
