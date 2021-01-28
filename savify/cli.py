@@ -15,17 +15,17 @@ from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetErro
 
 BANNER = rf"""
 
-   ┎───────────┒      /$$$$$$                       /$$  /$$$$$$
-   ┃(((((((((((┃     /$$__  $$                     |__/ /$$__  $$
-   ┃(((((((((((┃    | $$  \__/  /$$$$$$  /$$    /$$ /$$| $$  \__//$$   /$$
-   ┃(((((((((((┃    |  $$$$$$  |____  $$|  $$  /$$/| $$| $$$$   | $$  | $$
-   ┃(((((((((((┃     \____  $$  /$$$$$$$ \  $$/$$/ | $$| $$_/   | $$  | $$
-╭━━┛(((((((((((┗━━╮  /$$  \ $$ /$$__  $$  \  $$$/  | $$| $$     | $$  | $$
- ╲(((((((((((((((╱  |  $$$$$$/|  $$$$$$$   \  $/   | $$| $$     |  $$$$$$$
-   ╲(((((((((((╱     \______/  \_______/    \_/    |__/|__/      \____  $$
-     ╲(((((((╱                                                   /$$  | $$
-       ╲(((╱                                                    |  $$$$$$/
-         V                                                       \______/ v{__version__}
+  /$$$$$$$$$$$$$      /$$$$$$                       /$$  /$$$$$$
+ | $$$$$$$$$$$$$     /$$__  $$                     |__/ /$$__  $$
+ | $$$$$$$$$$$$$    | $$  \__/  /$$$$$$  /$$    /$$ /$$| $$  \__//$$   /$$
+ | $$$$$$$$$$$$$    |  $$$$$$  |____  $$|  $$  /$$/| $$| $$$$   | $$  | $$
+ | $$$$$$$$$$$$$     \____  $$  /$$$$$$$ \  $$/$$/ | $$| $$_/   | $$  | $$
+/ $$$$$$$$$$$$$$$$$  /$$  \ $$ /$$__  $$  \  $$$/  | $$| $$     | $$  | $$
+\ $$$$$$$$$$$$$$$$/ |  $$$$$$/|  $$$$$$$   \  $/   | $$| $$     |  $$$$$$$
+  \ $$$$$$$$$$$$/    \______/  \_______/    \_/    |__/|__/      \____  $$
+    \ $$$$$$$$/                                                  /$$  | $$
+      \ $$$$/                                                   |  $$$$$$/
+        \_/                                                      \______/ v{__version__}
                  Copyright (c) 2018-{datetime.datetime.now().year} {__author__}
 
 """
@@ -73,12 +73,36 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
 
     logger = Logger(log_level)
 
+    def setup(ffmpeg=None):
+        return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
+                      skip_cover_art=skip_cover_art, logger=logger, ffmpeg_location=ffmpeg)
+
     try:
-        s = Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
-                   skip_cover_art=skip_cover_art, logger=logger)
+        s = setup()
     except FFmpegNotInstalledError as ex:
-        logger.error(ex.message)
-        return 1
+        from .ffmpegdl import FFmpegDL
+        ffmpeg_dl = FFmpegDL()
+
+        if not ffmpeg_dl.check():
+            logger.error(ex.message)
+            if silent:
+                return 1
+
+            choice = input('[INPUT]\tWould you like Savify to download FFmpeg for you? (Y/n) ')
+            if choice.lower() == 'y' or not choice:
+                logger.info('Downloading FFmpeg...')
+                try:
+                    ffmpeg_location = ffmpeg_dl.download()
+                except:
+                    logger.error('Failed to download FFmpeg!')
+                    return 1
+                logger.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
+            else:
+                return 1
+        else:
+            ffmpeg_location = ffmpeg_dl.final_location
+
+        s = setup(ffmpeg=str(ffmpeg_location))
     except SpotifyApiCredentialsNotSetError as ex:
         logger.error(ex.message)
         return 1
