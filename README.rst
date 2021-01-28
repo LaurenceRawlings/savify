@@ -71,8 +71,8 @@ the downloaded song files.
 **Any questions or feedback join the** `Discord Server <https://discordapp.com/invite/SPuPEda>`__
 
 
-.. image:: images/donate.png
-     :target: https://www.buymeacoffee.com/laurencer
+.. image:: https://ko-fi.com/img/githubbutton_sm.svg
+     :target: https://ko-fi.com/laurencerawlings
      :alt: Donate
 
 FFmpeg
@@ -253,10 +253,11 @@ Savify optional constructor arguments (see above for defaults):
      from savify import Savify
      from savify.types import Type, Format, Quality
      from savify.utils import PathHolder
+     from savify.logger import LogLevel
 
      # Quality Options: WORST, Q32K, Q96K, Q128K, Q192K, Q256K, Q320K, BEST
      # Format Options: MP3, AAC, FLAC, M4A, OPUS, VORBIS, WAV
-     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, path_holder=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%', quiet=False, skip_cover_art=False)
+     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, path_holder=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%', quiet=False, skip_cover_art=False, log_level=LogLevel.SILENT)
 
 Manually customising youtube-dl options:
 
@@ -269,6 +270,17 @@ Manually customising youtube-dl options:
      }
 
      Savify(ydl_options=options)
+
+Passing in your own logger:
+
+.. code-block:: python
+
+     from savify import Savify
+     from savify.logger import Logger, LogLevel
+
+     logger = Logger(log_level=LogLevel.DEBUG)
+
+     Savify(logger=logger)
 
 The group argument is used to sort you downloaded songs inside the
 output path. Possible variables for the path string are: %artist%, %album%,
