@@ -1,21 +1,29 @@
+class LogLevel:
+    SILENT = 0
+    QUIET = 1
+    WARN = 2
+    DEBUG = 4
+
+
 class Logger:
-    def __init__(self, quiet=False):
+    def __init__(self, log_level=LogLevel.QUIET):
         self.log = ''
-        self.quiet = quiet
+        self.log_level = log_level
 
-    def __print(self, tag: str, message: str):
+    def __print(self, tag: str, message: str, log_level: int = LogLevel.SILENT):
+        message = f'[{tag}]\t{message}'
         self.log += message + '\n'
-        if not self.quiet:
-            print(f'[{tag}] {message}')
+        if log_level <= self.log_level:
+            print(message)
 
-    def log(self, message: str):
-        self.__print('INFO', message)
+    def info(self, message: str):
+        self.__print('INFO', message, LogLevel.QUIET)
 
     def warning(self, message: str):
-        self.__print('WARN', message)
+        self.__print('WARN', message, LogLevel.WARN)
 
     def error(self, message: str):
-        self.__print('ERROR', message)
+        self.__print('ERROR', message, LogLevel.QUIET)
 
     def debug(self, message: str):
-        self.__print('DEBUG', message)
+        self.__print('DEBUG', message, LogLevel.DEBUG)
