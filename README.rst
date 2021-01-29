@@ -250,14 +250,15 @@ Savify optional constructor arguments (see above for defaults):
 
 .. code-block:: python
 
+    import logging
+
      from savify import Savify
      from savify.types import Type, Format, Quality
      from savify.utils import PathHolder
-     from savify.logger import LogLevel
 
      # Quality Options: WORST, Q32K, Q96K, Q128K, Q192K, Q256K, Q320K, BEST
      # Format Options: MP3, AAC, FLAC, M4A, OPUS, VORBIS, WAV
-     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, path_holder=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%', quiet=False, skip_cover_art=False, log_level=LogLevel.SILENT)
+     Savify(api_credentials=None, quality=Quality.BEST, download_format=Format.MP3, path_holder=PathHolder(downloads_path='path/for/downloads'), group='%artist%/%album%', quiet=False, skip_cover_art=False, log_level=logging.INFO)
 
 Manually customising youtube-dl options:
 
@@ -276,9 +277,9 @@ Passing in your own logger:
 .. code-block:: python
 
      from savify import Savify
-     from savify.logger import Logger, LogLevel
+     from savify.logger import Logger
 
-     logger = Logger(log_level=LogLevel.DEBUG)
+     logger = Logger(log_location='path/for/logs', log_level=None) # Silent output
 
      Savify(logger=logger)
 
