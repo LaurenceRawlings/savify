@@ -5,9 +5,9 @@
 # When starting the script with bash download_playlists.sh, it will create n containers named 
 # savify_(last 12 characters of the playlist link) so you can resolve which containers downloads which playlist.
 
-# Information: The docker image has to be previously built and tagged with savify[:latest]
-# Use 'docker build -t savify:latest .' inside the project directory to build the Docker container
-# Or use the Docker image provided in Docker Hub
+# Information: The docker image has to be previously built and tagged with savify[:dev]
+# Use 'docker build -t savify:dev .' inside the project directory to build the Docker container
+# Or use the Docker image provided in Docker Hub: laurencerawlings/savify:latest (recommended!)
 
 # Specify download location, use pwd for current directory
 location="`pwd`"
@@ -30,7 +30,7 @@ do
 		   -e SPOTIPY_CLIENT_ID=$client_id \
 		   -e SPOTIPY_CLIENT_SECRET=$client_secret \
 		   -v "$location":/download \
-		   savify:latest \
-		   "$playlist" -o /download -g "%playlist%" -q best -f mp3
+		   laurencerawlings/savify:latest \
+		   "$playlist" -o /download -g "%playlist%"
 ) &
 done
