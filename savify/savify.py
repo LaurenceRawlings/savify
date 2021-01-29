@@ -67,7 +67,7 @@ class Savify:
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
-        if not check_ffmpeg() and self.ffmpeg_location is None:
+        if not check_ffmpeg() and self.ffmpeg_location == 'ffmpeg':
             raise FFmpegNotInstalledError
 
         if logger is None:
@@ -187,7 +187,7 @@ class Savify:
             options['postprocessor_args'].append('-codec:a')
             options['postprocessor_args'].append('libmp3lame')
 
-        if self.ffmpeg_location is not None:
+        if self.ffmpeg_location != 'ffmpeg':
             options['ffmpeg_location'] = self.ffmpeg_location
 
         attempt = 0
