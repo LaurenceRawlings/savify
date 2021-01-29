@@ -22,6 +22,9 @@ declare -a playlists=(
 client_id=sampleid123
 client_secret=samplesecret123
 
+# Specify the image you want Savify to run with
+version=laurencerawlings/savify:latest
+
 for playlist in "${playlists[@]}";
 do
 (	echo "Downloading playlist: $playlist"
@@ -30,7 +33,7 @@ do
 		   -e SPOTIPY_CLIENT_ID=$client_id \
 		   -e SPOTIPY_CLIENT_SECRET=$client_secret \
 		   -v "$location":/download \
-		   laurencerawlings/savify:latest \
+		   $version \
 		   "$playlist" -o /download -g "%playlist%"
 ) &
 done
