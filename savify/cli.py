@@ -1,15 +1,15 @@
 """Console script for Savify."""
-
 import sys
 import re
 import datetime
 import click
+import logging
 
 from . import __version__, __author__
 from .types import *
 from .utils import PathHolder
 from .savify import Savify
-from .logger import Logger, LogLevel
+from .logger import Logger
 from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetError, UrlNotSupportedError, \
     InternetConnectionError
 
@@ -64,14 +64,13 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
         click.echo(BANNER)
         log_level = convert_log_level(verbose)
     else:
-        log_level = LogLevel.SILENT
+        log_level = None
 
     path_holder = PathHolder(path, output)
     output_format = convert_format(format)
     query_type = convert_type(type)
     quality = convert_quality(quality)
-
-    logger = Logger(log_level)
+    logger = Logger(path_holder.data_path, log_level)
 
     def setup(ffmpeg='ffmpeg'):
         return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
@@ -84,19 +83,19 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
         ffmpeg_dl = FFmpegDL(str(path_holder.data_path))
 
         if not ffmpeg_dl.check():
-            logger.error(ex.message)
+            logging.error(ex.message)
             if silent:
                 return 1
 
             choice = input('[INPUT]\tWould you like Savify to download FFmpeg for you? (Y/n) ')
             if choice.lower() == 'y' or not choice:
-                logger.info('Downloading FFmpeg...')
+                logging.info('Downloading FFmpeg...')
                 try:
                     ffmpeg_location = ffmpeg_dl.download()
                 except:
-                    logger.error('Failed to download FFmpeg!')
+                    logging.error('Failed to download FFmpeg!')
                     return 1
-                logger.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
+                logging.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
             else:
                 return 1
         else:
@@ -104,16 +103,16 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
 
         s = setup(ffmpeg=str(ffmpeg_location))
     except SpotifyApiCredentialsNotSetError as ex:
-        logger.error(ex.message)
+        logging.error(ex.message)
         return 1
 
     try:
         s.download(query, query_type=query_type)
     except UrlNotSupportedError as ex:
-        logger.error(ex.message)
+        logging.error(ex.message)
         return 1
     except InternetConnectionError as ex:
-        logger.error(ex.message)
+        logging.error(ex.message)
         return 1
 
     return 0
@@ -166,11 +165,11 @@ def convert_format(output_format):
 
 def convert_log_level(verbosity: int):
     if verbosity == 1:
-        return LogLevel.WARN
+        return logging.WARNING
     elif verbosity == 2:
-        return LogLevel.DEBUG
+        return logging.DEBUG
     else:
-        return LogLevel.QUIET
+        return logging.INFO
 
 
 if __name__ == "__main__":

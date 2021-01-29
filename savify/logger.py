@@ -1,29 +1,45 @@
-class LogLevel:
-    SILENT = 0
-    QUIET = 1
-    WARN = 2
-    DEBUG = 4
+import logging
+import traceback
+from .utils import create_dir
+from datetime import datetime
+from pathlib import Path
 
 
 class Logger:
-    def __init__(self, log_level=LogLevel.QUIET):
-        self.log = ''
-        self.log_level = log_level
+    def __init__(self, log_location: str = '', log_level=logging.INFO):
+        self.logger = logging.getLogger('savify')
+        self.logger.setLevel(logging.DEBUG)
 
-    def __print(self, tag: str, message: str, log_level: int = LogLevel.SILENT):
-        message = f'[{tag}]\t{message}'
-        self.log += message + '\n'
-        if log_level <= self.log_level:
-            print(message)
+        time = (str(datetime.now()).replace(" ", "_")).replace(":", "_")
+        log_location = f'{log_location}/logs/{time}_savify.log'
+        formatter = logging.Formatter('[%(levelname)s]\t%(message)s')
 
-    def info(self, message: str):
-        self.__print('INFO', message, LogLevel.QUIET)
+        create_dir(Path(log_location).parent)
 
-    def warning(self, message: str):
-        self.__print('WARN', message, LogLevel.WARN)
+        if log_level is not None:
+            stream_handler = logging.StreamHandler()
+            stream_handler.setLevel(log_level)
+            stream_handler.setFormatter(formatter)
+            self.logger.addHandler(stream_handler)
 
-    def error(self, message: str):
-        self.__print('ERROR', message, LogLevel.QUIET)
+        file_handler = logging.FileHandler(log_location)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
 
-    def debug(self, message: str):
-        self.__print('DEBUG', message, LogLevel.DEBUG)
+    def log_traceback(self):
+        self.logger.error('An error occurred!')
+        self.logger.error(traceback.format_exc())
+
+    def debug(self, message):
+        self.logger.debug(message)
+
+    def warning(self, message):
+        self.logger.warning(message)
+
+    def error(self, message):
+        self.logger.error(message)
+
+    def info(self, message):
+        self.logger.info(message)
+

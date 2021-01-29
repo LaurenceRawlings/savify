@@ -3,6 +3,7 @@
 __all__ = ['Savify']
 
 import time
+import logging
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
@@ -18,7 +19,7 @@ from .utils import PathHolder, safe_path_string, check_env, check_ffmpeg, check_
 from .types import *
 from .spotify import Spotify
 from .track import Track
-from .logger import Logger, LogLevel
+from .logger import Logger
 from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetError, UrlNotSupportedError, \
     YoutubeDlExtractionError, InternetConnectionError
 
@@ -45,7 +46,7 @@ def _progress(data):
 
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
-                 group=None, log_level: int = LogLevel.QUIET, path_holder: PathHolder = None, retry: int = 3,
+                 group=None, path_holder: PathHolder = None, retry: int = 3,
                  ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
                  ffmpeg_location: str = 'ffmpeg'):
 
@@ -58,6 +59,7 @@ class Savify:
         self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
+        self.logger = logger
 
         if api_credentials is None:
             if not (check_env()):
@@ -69,11 +71,6 @@ class Savify:
 
         if not check_ffmpeg() and self.ffmpeg_location == 'ffmpeg':
             raise FFmpegNotInstalledError
-
-        if logger is None:
-            self.logger = Logger(log_level=log_level)
-        else:
-            self.logger = logger
 
         clean(self.path_holder.get_temp_dir())
 
@@ -144,14 +141,13 @@ class Savify:
         output_temp = f'{str(self.path_holder.get_temp_dir())}/{track.id}.%(ext)s'
 
         if check_file(output):
-            self.logger.warning(f'{str(track)} -> is already downloaded. Skipping...')
+            self.logger.info(f'{str(track)} -> is already downloaded. Skipping...')
             status['returncode'] = 0
             return status
 
         create_dir(output.parent)
 
         options = {
-            'quiet': self.logger.log_level <= LogLevel.QUIET,
             'format': 'bestaudio/best',
             'outtmpl': output_temp,
             'restrictfilenames': True,
