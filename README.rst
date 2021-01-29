@@ -169,6 +169,9 @@ Spotify client ID and secret by using environment variables (``-e``):
                -e SPOTIPY_CLIENT_ID=client_id \
                -e SPOTIPY_CLIENT_SECRET=client_secret \
                savify:latest "https://open.spotify.com/playlist/..."
+               
+If you want to preserve your logs, you can mount the logging directory by simply
+adding the following argument to the docker run command: ``-v "./logs:/root/.local/share/Savify/logs"``
 
 General usage
 ~~~~~~~~~~~~~
