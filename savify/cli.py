@@ -73,7 +73,7 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
 
     logger = Logger(log_level)
 
-    def setup(ffmpeg=None):
+    def setup(ffmpeg='ffmpeg'):
         return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
                       skip_cover_art=skip_cover_art, logger=logger, ffmpeg_location=ffmpeg)
 
