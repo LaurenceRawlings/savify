@@ -47,7 +47,7 @@ class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, log_level: int = LogLevel.QUIET, path_holder: PathHolder = None, retry: int = 3,
                  ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
-                 ffmpeg_location: str = None):
+                 ffmpeg_location: str = 'ffmpeg'):
 
         self.downloaded_cover_art = {}
         self.download_format = download_format
@@ -238,16 +238,17 @@ class Savify:
                 self.downloaded_cover_art[cover_art_name] = cover_art
 
             ffmpeg = FFmpeg(executable=self.ffmpeg_location,
-            inputs = {str(output_temp): None, str(cover_art): None, },
-                     outputs = {
-                str(output): '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
-                             '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
-                # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
-                # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
-                # 'start_duration=1:start_threshold=-60dB:'
-                # 'detection=peak,aformat=dblp,areverse"'
-                }
-            )
+                            inputs={str(output_temp): None, str(cover_art): None, },
+                            outputs={
+                                str(
+                                    output): '-loglevel quiet -hide_banner -y -map 0:0 -map 1:0 -c copy -id3v2_version 3 '
+                                             '-metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" '
+                                # '-af "silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:'
+                                # 'detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:'
+                                # 'start_duration=1:start_threshold=-60dB:'
+                                # 'detection=peak,aformat=dblp,areverse"'
+                            }
+                            )
 
             try:
                 ffmpeg.run()
