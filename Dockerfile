@@ -2,10 +2,10 @@
 FROM python:3.8-slim
 
 # Install any needed packages specified in requirements.txt
-RUN apt-get update && apt-get install -y git ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
-# Clone git repo
-RUN git clone https://github.com/LaurenceRawlings/savify
+# Clone repo to container
+COPY . /savify
 WORKDIR /savify
 
 # Install dependencies and setup savify from source
