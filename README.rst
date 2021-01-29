@@ -113,6 +113,14 @@ Using the Python module
 
 ``$ pip install -U savify``
 
+Build savify as Docker container
+--------------------------------
+
+Clone the repository and make sure you are in the root directory.
+Execute the following build command:
+
+``$ docker build -t savify:latest .``
+
 Usage
 =====
 
@@ -137,6 +145,30 @@ by default), from anywhere you can simply run:
 For help run:
 
 ``$ savify --help``
+
+Docker
+------
+
+Run savify inside a container which can also be attached to other 
+container's networks. This is handy if you want to run multiple instances
+of savify and/or want to use VPNs for downloading.
+You can use your self-built Docker image or the official one. Make sure to
+use the right Docker image name and tag.
+
+``$ docker run savify:latest``
+
+If no argument is specified, the container will print the help page. Simply
+append your arguments, make sure you mount a folder from your host so
+downloads are persistent (``-v``) - ``pwd`` is used to mount the current directory 
+you are in - and remove the container when done (``--rm``). You have to specify your 
+Spotify client ID and secret by using environment variables (``-e``):
+
+.. code-block:: bash
+
+    $ docker run --rm -v "`pwd`:/root/.local/share/Savify/downloads" \
+               -e SPOTIPY_CLIENT_ID=client_id \
+               -e SPOTIPY_CLIENT_SECRET=client_secret \
+               savify:latest "https://open.spotify.com/playlist/..."
 
 General usage
 ~~~~~~~~~~~~~
