@@ -3,7 +3,7 @@ Savify
 
 Download Spotify songs to mp3 with full metadata and cover art!
 
-:Copyright: © 2020, Laurence Rawlings.
+:Copyright: 2020, Laurence Rawlings.
 :License: MIT (see /LICENSE).
 """
 
