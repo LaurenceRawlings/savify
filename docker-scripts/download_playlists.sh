@@ -27,13 +27,26 @@ version=laurencerawlings/savify:latest
 
 for playlist in "${playlists[@]}";
 do
-(	echo "Downloading playlist: $playlist"
-  id=${playlist: -12}
-  docker run --rm -d --name "savify_${id//[^[:alnum:]]/}" \
-		   -e SPOTIPY_CLIENT_ID=$client_id \
-		   -e SPOTIPY_CLIENT_SECRET=$client_secret \
-		   -v "$location":/download \
-		   $version \
-		   "$playlist" -o /download -g "%playlist%"
-) &
+( echo "Downloading playlist: $playlist"
+  id=${playlist: -8}
+  vpn=$(docker ps -a --filter "name=vpn" --filter "health=healthy" --format "table {{.Names}}" | tail -n +2 | xargs shuf -n1 -e)
+  if [ -z "$vpn" ]; then
+        echo "No VPN found! Running without VPN!"
+        docker run --rm -d --name "savify_${id//[^[:alnum:]]/}" \
+                -e SPOTIPY_CLIENT_ID=$client_id \
+                -e SPOTIPY_CLIENT_SECRET=$client_secret \
+                -v "$location":/download \
+                $version \
+                "$playlist" -o /download -g "%playlist%"
+  else
+        echo "Using VPN: $vpn"
+        docker run --rm -d --name "savify_${id//[^[:alnum:]]/}_$vpn" \
+                --net=container:"$vpn" \
+                -e SPOTIPY_CLIENT_ID=$client_id \
+                -e SPOTIPY_CLIENT_SECRET=$client_secret \
+                -v "$location":/download \
+                $version \
+                "$playlist" -o /download -g "%playlist%"
+  fi
+)
 done
