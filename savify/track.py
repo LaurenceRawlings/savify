@@ -49,7 +49,7 @@ class Track:
             self._playlist = ''
         try:
             self._cover_art_url = spotify_data['album']['images'][0]['url']
-        except KeyError or IndexError:
+        except (KeyError, IndexError):
             self._cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
 
     @property
