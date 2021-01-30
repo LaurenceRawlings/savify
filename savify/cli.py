@@ -83,19 +83,19 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
         ffmpeg_dl = FFmpegDL(str(path_holder.data_path))
 
         if not ffmpeg_dl.check():
-            logging.error(ex.message)
+            logger.error(ex.message)
             if silent:
                 return 1
 
             choice = input('[INPUT]\tWould you like Savify to download FFmpeg for you? (Y/n) ')
             if choice.lower() == 'y' or not choice:
-                logging.info('Downloading FFmpeg...')
+                logger.info('Downloading FFmpeg...')
                 try:
                     ffmpeg_location = ffmpeg_dl.download()
                 except:
-                    logging.error('Failed to download FFmpeg!')
+                    logger.error('Failed to download FFmpeg!')
                     return 1
-                logging.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
+                logger.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
             else:
                 return 1
         else:
@@ -103,16 +103,16 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
 
         s = setup(ffmpeg=str(ffmpeg_location))
     except SpotifyApiCredentialsNotSetError as ex:
-        logging.error(ex.message)
+        logger.error(ex.message)
         return 1
 
     try:
         s.download(query, query_type=query_type)
     except UrlNotSupportedError as ex:
-        logging.error(ex.message)
+        logger.error(ex.message)
         return 1
     except InternetConnectionError as ex:
-        logging.error(ex.message)
+        logger.error(ex.message)
         return 1
 
     return 0
