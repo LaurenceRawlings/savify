@@ -7,6 +7,7 @@ class Type:
     PLAYLIST = 'playlist'
     EPISODE = 'episode'
     SHOW = 'show'
+    ARTIST = 'artist'
 
 
 class Platform:

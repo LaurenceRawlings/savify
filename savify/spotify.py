@@ -23,6 +23,12 @@ class Spotify:
                 return _pack_album(self.sp.album(results[f'{Type.ALBUM}s']['items'][0]['id']))
             elif query_type == Type.PLAYLIST:
                 return self._get_playlist_tracks(results[f'{Type.PLAYLIST}s']['items'][0]['id'])
+            elif query_type == Type.ARTIST:
+                albums = self._get_artist_albums(results[f'{Type.ARTIST}s']['items'][0]['id'])
+                tracks = []
+                for album in albums:
+                    tracks.extend(_pack_album(self.sp.album(album['id'])))
+                return tracks
         else:
             return []
 
@@ -38,6 +44,12 @@ class Spotify:
                 return [Track(self.sp.episode(query, 'US'), track_type=Type.EPISODE)]
             elif '/show/' in query:
                 return self._get_show_episodes(query)
+            elif '/artist/' in query:
+                albums = self._get_artist_albums(query)
+                tracks = []
+                for album in albums:
+                    tracks.extend(_pack_album(self.sp.album(album['id'])))
+                return tracks
             else:
                 return []
         except spotipy.exceptions.SpotifyException:
@@ -66,6 +78,15 @@ class Spotify:
         show['episodes'] = episodes
 
         return _pack_show(show)
+
+    def _get_artist_albums(self, artist_id):
+        results = self.sp.artist_albums(artist_id)
+        albums = results['items']
+        while results['next']:
+            results = self.sp.next(results)
+            albums.extend(results['items'])
+
+        return albums
 
 
 def _pack_album(album) -> list:

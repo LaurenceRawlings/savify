@@ -43,7 +43,7 @@ def validate_group(ctx, param, value):
 @click.help_option()
 @click.version_option(version=__version__)
 @click.option('-t', '--type', default='track', help='Query type for text search.',
-              type=click.Choice(['track', 'album', 'playlist']))
+              type=click.Choice(['track', 'album', 'playlist', 'artist']))
 @click.option('-q', '--quality', default='best', help='Bitrate for downloaded song(s).',
               type=click.Choice(['best', '320k', '256k', '192k', '128k', '96k', '32k', 'worst']))
 @click.option('-f', '--format', default='mp3', help='Format for downloaded song(s).',
@@ -125,6 +125,8 @@ def convert_type(query_type):
         return Type.ALBUM
     elif query_type.lower() == 'playlist':
         return Type.PLAYLIST
+    elif query_type.lower() == 'artist':
+        return Type.ARTIST
 
 
 def convert_quality(quality):
