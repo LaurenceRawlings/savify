@@ -1,11 +1,19 @@
+from .types import Type, Platform
+
+
 class Track:
-    def __init__(self, spotify_data):
+    def __init__(self, spotify_data, track_type=Type.TRACK):
         self._data = spotify_data
+        self.track_type = track_type
+        self.platform = Platform.SPOTIFY
 
         try:
             self._album_name = spotify_data['album']['name']
         except KeyError:
-            self._album_name = 'Unknown Album'
+            try:
+                self._album_name = spotify_data['show']['name']
+            except KeyError:
+                self._album_name = 'Unknown Album'
         try:
             self._release_date = spotify_data['album']['release_date']
         except KeyError:
@@ -13,7 +21,10 @@ class Track:
         try:
             self._artists = spotify_data['artists']
         except KeyError:
-            self._artists = [{'name': 'Unknown Artist'}]
+            try:
+                self._artists = [{'name': spotify_data['show']['publisher']}]
+            except KeyError:
+                self._artists = [{'name': 'Unknown Artist'}]
         try:
             self._disc_number = spotify_data['disc_number']
         except KeyError:
@@ -50,7 +61,10 @@ class Track:
         try:
             self._cover_art_url = spotify_data['album']['images'][0]['url']
         except (KeyError, IndexError):
-            self._cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
+            try:
+                self._cover_art_url = spotify_data['images'][0]['url']
+            except (KeyError, IndexError):
+                self._cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
 
     @property
     def album_name(self):

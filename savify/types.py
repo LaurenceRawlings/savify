@@ -5,6 +5,8 @@ class Type:
     TRACK = 'track'
     ALBUM = 'album'
     PLAYLIST = 'playlist'
+    EPISODE = 'episode'
+    SHOW = 'show'
 
 
 class Platform:

@@ -134,7 +134,13 @@ class Savify:
         }
 
         extractor = 'ytsearch'
-        query = f'{extractor}:{str(track)} audio'
+
+        if track.platform == Platform.SPOTIFY:
+            if track.track_type == Type.EPISODE:
+                query = track.url
+            else:
+                query = f'{extractor}:{str(track)} audio'
+
         output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
             f'{str(track)}.{self.download_format}')
 
