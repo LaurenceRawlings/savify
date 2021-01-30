@@ -10,19 +10,19 @@ class Spotify:
         if api_credentials is None:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
         else:
-            id, secret = api_credentials
+            client_id, client_secret = api_credentials
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
-                client_id=id, client_secret=secret))
+                client_id=client_id, client_secret=client_secret))
 
     def search(self, query, query_type=Type.TRACK) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
-        if len(results[query_type + 's']['items']) > 0:
+        if len(results[f'{query_type}s']['items']) > 0:
             if query_type == Type.TRACK:
-                return [Track(results[Type.TRACK + 's']['items'][0])]
+                return [Track(results[f'{Type.TRACK}s']['items'][0])]
             elif query_type == Type.ALBUM:
-                return _pack_album(self.sp.album(results[Type.ALBUM + 's']['items'][0]['id']))
+                return _pack_album(self.sp.album(results[f'{Type.ALBUM}s']['items'][0]['id']))
             elif query_type == Type.PLAYLIST:
-                return self._get_playlist_tracks(results[Type.PLAYLIST + 's']['items'][0]['id'])
+                return self._get_playlist_tracks(results[f'{Type.PLAYLIST}s']['items'][0]['id'])
         else:
             return []
 

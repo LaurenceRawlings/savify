@@ -3,7 +3,6 @@
 __all__ = ['Savify']
 
 import time
-import logging
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
@@ -28,7 +27,7 @@ def _sort_dir(track, group):
     if not group:
         return ''
 
-    group = group.replace('%artist%', safe_path_string(track.artist_names[0]))
+    group = group.replace('%artist%', safe_path_string(track.artists[0]))
     group = group.replace('%album%', safe_path_string(track.album_name))
     group = group.replace('%playlist%', safe_path_string(track.playlist))
 
@@ -140,6 +139,8 @@ class Savify:
                 query = track.url
             else:
                 query = f'{extractor}:{str(track)} audio'
+        else:
+            query = ''
 
         output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
             f'{str(track)}.{self.download_format}')
@@ -176,7 +177,7 @@ class Savify:
                 '-metadata', f'title={track.name}',
                 '-metadata', f'album={track.album_name}',
                 '-metadata', f'date={track.release_date}',
-                '-metadata', f'artist={", ".join(track.artist_names)}',
+                '-metadata', f'artist={", ".join(track.artists)}',
                 '-metadata', f'disc={track.disc_number}',
                 '-metadata', f'track={track.track_number}/{track.album_track_count}',
             ],
@@ -231,7 +232,7 @@ class Savify:
         while not added_artwork:
             attempt += 1
 
-            cover_art_name = f'{track.album_name} - {track.artist_names[0]}'
+            cover_art_name = f'{track.album_name} - {track.artists[0]}'
 
             if cover_art_name in self.downloaded_cover_art:
                 cover_art = self.downloaded_cover_art[cover_art_name]
