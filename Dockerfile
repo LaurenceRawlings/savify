@@ -1,11 +1,11 @@
 # Use an official Python runtime as a base image
-FROM python:3.8-slim
+FROM python:3.9-alpine
 
 # Install any needed packages specified in requirements.txt
-RUN apt-get update && apt-get install -y git ffmpeg
+RUN apk add --update ffmpeg
 
-# Clone git repo
-RUN git clone https://github.com/LaurenceRawlings/savify
+# Clone repo to container
+COPY . /savify
 WORKDIR /savify
 
 # Install dependencies and setup savify from source

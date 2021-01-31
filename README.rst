@@ -68,6 +68,8 @@ sources such as YouTube and Soundcloud using the youtube-dl python library.
 Spotify is only used to gather accurate meta information to be embedded into
 the downloaded song files.
 
+**Visit our official Docker Hub image repository and get the latest Docker image: https://hub.docker.com/repository/docker/laurencerawlings/savify**
+
 **Any questions or feedback join the** `Discord Server <https://discordapp.com/invite/SPuPEda>`__
 
 
