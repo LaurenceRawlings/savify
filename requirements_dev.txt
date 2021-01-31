@@ -7,6 +7,5 @@ tox==3.21.3
 coverage==5.4
 Sphinx==3.4.3
 twine==3.3.0
-Click==7.1.2
 pytest==6.2.2
 pytest-runner==5.2
