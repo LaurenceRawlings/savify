@@ -199,7 +199,7 @@ class Savify:
                 '-metadata', f'title={track.name}',
                 '-metadata', f'album={track.album_name}',
                 '-metadata', f'date={track.release_date}',
-                '-metadata', f'artist={", ".join(track.artists)}',
+                '-metadata', f'artist={"/".join(track.artists)}',
                 '-metadata', f'disc={track.disc_number}',
                 '-metadata', f'track={track.track_number}/{track.album_track_count}',
             ],
