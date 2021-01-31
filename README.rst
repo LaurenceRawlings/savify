@@ -2,7 +2,7 @@
 Savify
 ======
 
-.. image:: images/savify-banner.png
+.. image:: images/banner.png
      :alt: Savify
 
 .. image:: https://img.shields.io/pypi/v/savify.svg?style=for-the-badge
