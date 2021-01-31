@@ -10,9 +10,9 @@ from urllib.error import URLError
 
 import validators
 import tldextract
+import requests
 from youtube_dl import YoutubeDL
 from ffmpy import FFmpeg, FFRuntimeError
-from requests.exceptions import ConnectionError
 
 from .utils import PathHolder, safe_path_string, check_env, check_ffmpeg, check_file, create_dir, clean
 from .types import *
@@ -49,6 +49,8 @@ class Savify:
                  ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
                  ffmpeg_location: str = 'ffmpeg'):
 
+        self.logger = logger  # todo: default logger
+        self.check_for_updates()
         self.downloaded_cover_art = {}
         self.download_format = download_format
         self.path_holder = path_holder
@@ -58,7 +60,6 @@ class Savify:
         self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
-        self.logger = logger
 
         if api_credentials is None:
             if not (check_env()):
@@ -72,6 +73,18 @@ class Savify:
             raise FFmpegNotInstalledError
 
         clean(self.path_holder.get_temp_dir())
+
+    def check_for_updates(self):
+        self.logger.info('Checking for updates...')
+        from . import __version__
+        latest_ver = requests.get('https://api.github.com/repos/LaurenceRawlings/savify/releases/latest').json()[
+            'tag_name']
+        current_ver = f'v{__version__}'
+        if latest_ver == current_ver:
+            self.logger.info('Savify is up to date!')
+        else:
+            self.logger.info('A new version of Savify is available, '
+                             'get the latest release here: https://github.com/LaurenceRawlings/savify/releases')
 
     def _parse_query(self, query, query_type=Type.TRACK) -> list:
         result = []
@@ -97,7 +110,7 @@ class Savify:
     def download(self, query, query_type=Type.TRACK, create_m3u=False) -> None:
         try:
             queue = self._parse_query(query, query_type=query_type)
-        except ConnectionError or URLError:
+        except requests.exceptions.ConnectionError or URLError:
             raise InternetConnectionError
 
         if not (len(queue) > 0):
