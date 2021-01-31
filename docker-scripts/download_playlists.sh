@@ -11,6 +11,8 @@
 
 # Specify download location, use pwd for current directory
 location="`pwd`"
+# Specify grouping schema
+grouping="%artist%/%album%"
 
 # Declare list with playlists to download, use comment to stay organized!
 declare -a playlists=(
@@ -37,7 +39,7 @@ do
                 -e SPOTIPY_CLIENT_SECRET=$client_secret \
                 -v "$location":/download \
                 $version \
-                "$playlist" -o /download -g "%playlist%"
+                "$playlist" -o /download -g "$grouping" -m
   else
         echo "Using VPN: $vpn"
         docker run --rm -d --name "savify_${id//[^[:alnum:]]/}_$vpn" \
@@ -46,7 +48,7 @@ do
                 -e SPOTIPY_CLIENT_SECRET=$client_secret \
                 -v "$location":/download \
                 $version \
-                "$playlist" -o /download -g "%playlist%"
+                "$playlist" -o /download -g "$grouping" -m
   fi
 )
 done
