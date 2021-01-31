@@ -18,7 +18,12 @@ class FFmpegNotInstalledError(SavifyError):
 
 class SpotifyApiCredentialsNotSetError(SavifyError):
     def __init__(self, message='Spotify API credentials not setup! '
-                               '[https://github.com/LaurenceRawlings/savify#spotify-application]'):
+                               '[https://github.com/LaurenceRawlings/savify#spotify-application]'
+                               '\n\tPlease go to https://developer.spotify.com/dashboard/applications '
+                               'and create a new application,\n\tthen add your client id and secret to '
+                               'your environment variables under SPOTIPY_ID and\n\tSPOTIPY_SECRET respectively. '
+                               'Finally restart your command console.'
+                 ):
         self.message = message
         super().__init__(self.message)
 
