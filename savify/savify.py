@@ -94,7 +94,7 @@ class Savify:
 
         return result
 
-    def download(self, query, query_type=Type.TRACK) -> None:
+    def download(self, query, query_type=Type.TRACK, create_m3u=False) -> None:
         try:
             queue = self._parse_query(query, query_type=query_type)
         except ConnectionError or URLError:
@@ -106,13 +106,32 @@ class Savify:
 
         self.logger.info(f'Downloading {len(queue)} songs...')
         start_time = time.time()
-        with ThreadPool(cpu_count())as pool:
+        with ThreadPool(cpu_count()) as pool:
             jobs = pool.map(self._download, queue)
 
-            failed_jobs = []
-            for job in jobs:
-                if job['returncode'] != 0:
-                    failed_jobs.append(job)
+        failed_jobs = []
+        successful_jobs = []
+        for job in jobs:
+            if job['returncode'] != 0:
+                failed_jobs.append(job)
+            else:
+                successful_jobs.append(job)
+
+        if create_m3u and len(successful_jobs) > 0:
+            playlist = safe_path_string(successful_jobs[0]['track'].playlist)
+            m3u = f'#EXTM3U\n#PLAYLIST:{playlist}\n'
+            m3u_location = self.path_holder.get_download_dir() / f'{playlist}' / f'{playlist}.m3u'
+
+            for job in successful_jobs:
+                track = job['track']
+                location = job['location']
+                m3u += f'#EXTINF:{str(queue.index(track))},{str(track)}\n'
+                from os.path import relpath
+                m3u += f'{relpath(location, m3u_location.parent)}\n'
+
+            self.logger.info('Creating the M3U playlist file..')
+            with open(m3u_location, 'w') as m3u_file:
+                m3u_file.write(m3u)
 
         self.logger.info('Cleaning up...')
         clean(self.path_holder.get_temp_dir())
@@ -129,11 +148,6 @@ class Savify:
         self.logger.info(message)
 
     def _download(self, track: Track) -> dict:
-        status = {
-            'track': track,
-            'returncode': -1
-        }
-
         extractor = 'ytsearch'
 
         if track.platform == Platform.SPOTIFY:
@@ -148,6 +162,12 @@ class Savify:
             f'{str(track)}.{self.download_format}')
 
         output_temp = f'{str(self.path_holder.get_temp_dir())}/{track.id}.%(ext)s'
+
+        status = {
+            'track': track,
+            'returncode': -1,
+            'location': output
+        }
 
         if check_file(output):
             self.logger.info(f'{str(track)} -> is already downloaded. Skipping...')

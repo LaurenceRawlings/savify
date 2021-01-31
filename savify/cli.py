@@ -54,11 +54,12 @@ def validate_group(ctx, param, value):
               type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
 @click.option('-p', '--path', default=None, help='Path to directory to be used for data and temporary files.',
               type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
+@click.option('-m', '--m3u', is_flag=True, help='Create an M3U playlist file for your download.')
 @click.option('--skip-cover-art', is_flag=True, help='Don\'t add cover art to downloaded song(s).')
 @click.option('--silent', is_flag=True, help='Hide all output to stdout, overrides verbosity level.')
 @click.option('-v', '--verbose', count=True, help='Change the log verbosity level. [-v, -vv]')
 @click.argument('query')
-def main(type, quality, format, output, group, path, verbose, silent, query, skip_cover_art, args=None):
+def main(type, quality, format, output, group, path, m3u, verbose, silent, query, skip_cover_art, args=None):
     if not silent:
         click.clear()
         click.echo(BANNER)
@@ -107,7 +108,7 @@ def main(type, quality, format, output, group, path, verbose, silent, query, ski
         return 1
 
     try:
-        s.download(query, query_type=query_type)
+        s.download(query, query_type=query_type, create_m3u=m3u)
     except UrlNotSupportedError as ex:
         logger.error(ex.message)
         return 1
