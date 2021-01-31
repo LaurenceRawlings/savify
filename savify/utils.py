@@ -43,7 +43,7 @@ def safe_path_string(string):
         if c.isalnum() or c in keep_characters:
             new_string = new_string + c
         else:
-            new_string = new_string + "□"
+            new_string = new_string + "_"
 
     return new_string.rstrip()
 
