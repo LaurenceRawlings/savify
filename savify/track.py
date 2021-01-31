@@ -36,7 +36,7 @@ class Track:
         except KeyError:
             self.disc_number = ''
         try:
-            self._url = spotify_data['external_urls']['spotify']
+            self.url = spotify_data['external_urls']['spotify']
         except KeyError:
             self.url = ''
         try:
