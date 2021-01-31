@@ -120,7 +120,7 @@ class Savify:
         if create_m3u and len(successful_jobs) > 0:
             playlist = safe_path_string(successful_jobs[0]['track'].playlist)
             m3u = f'#EXTM3U\n#PLAYLIST:{playlist}\n'
-            m3u_location = self.path_holder.get_download_dir() / f'{playlist}' / f'{playlist}.m3u'
+            m3u_location = self.path_holder.get_download_dir() / f'{playlist}.m3u'
 
             for job in successful_jobs:
                 track = job['track']
