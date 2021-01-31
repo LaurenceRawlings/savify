@@ -42,9 +42,6 @@ Savify
      :alt: Updates
 
 
-Savify
-======
-
 `Savify <https://github.com/LaurenceRawlings/savify>`__ is a python
 library that downloads songs from a selected provider (by default YouTube),
 and then scrapes the meta information from Spotify. Given a query, Savify will find
@@ -78,7 +75,7 @@ the downloaded song files.
      :alt: Donate
 
 FFmpeg
-------
+======
 
 Savify relies on the open source FFmpeg library to convert and
 write metadata to the songs it downloads. Please make sure FFmpeg is
