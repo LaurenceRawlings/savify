@@ -86,13 +86,13 @@ class Savify:
             self.logger.info('A new version of Savify is available, '
                              'get the latest release here: https://github.com/LaurenceRawlings/savify/releases')
 
-    def _parse_query(self, query, query_type=Type.TRACK) -> list:
+    def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
         result = []
 
         if validators.url(query):
             domain = tldextract.extract(query).domain
             if domain == Platform.SPOTIFY:
-                result = self.spotify.link(query)
+                result = self.spotify.link(query, artist_albums=artist_albums)
             else:
                 raise UrlNotSupportedError(query)
         else:
@@ -103,13 +103,13 @@ class Savify:
             elif query_type == Type.PLAYLIST:
                 result = self.spotify.search(query, query_type=Type.PLAYLIST)
             elif query_type == Type.ARTIST:
-                result = self.spotify.search(query, query_type=Type.ARTIST)
+                result = self.spotify.search(query, query_type=Type.ARTIST, artist_albums=artist_albums)
 
         return result
 
-    def download(self, query, query_type=Type.TRACK, create_m3u=False) -> None:
+    def download(self, query, query_type=Type.TRACK, create_m3u=False, artist_albums: bool = False) -> None:
         try:
-            queue = self._parse_query(query, query_type=query_type)
+            queue = self._parse_query(query, query_type=query_type, artist_albums=artist_albums)
         except requests.exceptions.ConnectionError or URLError:
             raise InternetConnectionError
 

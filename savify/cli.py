@@ -36,7 +36,7 @@ system('title Savify')
 
 
 class Choices:
-    BOOL = ['True', 'False']
+    BOOL = ['true', 'false']
     PATH = '<SYSTEM PATH>'
     TYPE = ['track', 'album', 'playlist', 'artist']
     QUALITY = ['best', '320k', '256k', '192k', '128k', '96k', '32k', 'worst']
@@ -65,9 +65,9 @@ def validate_group(ctx, param, value):
         raise click.BadParameter('Group must be in the form x or x/x/x... where x in [%artist%, %album%, %playlist%]')
 
 
-def guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art):
+def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, skip_cover_art):
     choice = ''
-    options = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
+    options = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     errors = []
     while not choice or choice.lower() in options:
         show_banner()
@@ -80,8 +80,9 @@ def guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art):
               f'[5] Grouping\t{Choices.GROUPING}\t{group}\n'
               f'[6] Temp\t{Choices.PATH}\t\t\t\t\t{path}\n'
               f'[7] Create M3U\t{choices(Choices.BOOL)}\t\t\t\t\t{m3u}\n'
-              f'[8] Cover-art\t{choices(Choices.BOOL)}\t\t\t\t\t{not skip_cover_art}\n\n'
-              f'[0] Exit\n')
+              f'[8] Cover-art\t{choices(Choices.BOOL)}\t\t\t\t\t{not skip_cover_art}\n'
+              f'[9] All Albums\t{choices(Choices.BOOL)}\t\t\t\t\t{artist_albums}\n'
+              f'\n[0] Exit\n')
         for error in errors:
             print(f'[ERROR]\t{error}')
         errors = []
@@ -139,10 +140,16 @@ def guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art):
                 skip_cover_art = not convert_bool(skip_cover_art_input)
             else:
                 errors.append('Invalid choice')
+        elif choice == '9':
+            artist_albums_input = get_choice()
+            if artist_albums_input in Choices.BOOL:
+                artist_albums = convert_bool(artist_albums_input)
+            else:
+                errors.append('Invalid choice')
 
     query = choice
     show_banner()
-    return type, quality, format, output, group, path, m3u, query, skip_cover_art
+    return type, quality, format, output, group, path, m3u, query, artist_albums, skip_cover_art
 
 
 @click.command()
@@ -160,11 +167,13 @@ def guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art):
 @click.option('-p', '--path', default=None, help='Path to directory to be used for data and temporary files.',
               type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True))
 @click.option('-m', '--m3u', is_flag=True, help='Create an M3U playlist file for your download.')
+@click.option('-a', '--artist-albums', is_flag=True, help='Download all artist songs and albums'
+                                                          ', not just top 10 songs.')
 @click.option('--skip-cover-art', is_flag=True, help='Don\'t add cover art to downloaded song(s).')
 @click.option('--silent', is_flag=True, help='Hide all output to stdout, overrides verbosity level.')
 @click.option('-v', '--verbose', count=True, help='Change the log verbosity level. [-v, -vv]')
 @click.argument('query', required=False)
-def main(type, quality, format, output, group, path, m3u, verbose, silent, query, skip_cover_art, args=None):
+def main(type, quality, format, output, group, path, m3u, artist_albums, verbose, silent, query, skip_cover_art):
     if not silent:
         show_banner()
         log_level = convert_log_level(verbose)
@@ -174,8 +183,8 @@ def main(type, quality, format, output, group, path, m3u, verbose, silent, query
     guided = False
     if not query:
         guided = True
-        type, quality, format, output, group, path, m3u, query, skip_cover_art = \
-            guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art)
+        type, quality, format, output, group, path, m3u, query, artist_albums, skip_cover_art = \
+            guided_cli(type, quality, format, output, group, path, m3u, artist_albums, skip_cover_art)
 
     path_holder = PathHolder(path, output)
     output_format = convert_format(format)
@@ -226,7 +235,7 @@ def main(type, quality, format, output, group, path, m3u, verbose, silent, query
         return 1
 
     try:
-        s.download(query, query_type=query_type, create_m3u=m3u)
+        s.download(query, query_type=query_type, create_m3u=m3u, artist_albums=artist_albums)
     except UrlNotSupportedError as ex:
         logger.error(ex.message)
         check_guided()

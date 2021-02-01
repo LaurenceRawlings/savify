@@ -14,7 +14,7 @@ class Spotify:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
                 client_id=client_id, client_secret=client_secret))
 
-    def search(self, query, query_type=Type.TRACK) -> list:
+    def search(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
         if len(results[f'{query_type}s']['items']) > 0:
             if query_type == Type.TRACK:
@@ -24,15 +24,18 @@ class Spotify:
             elif query_type == Type.PLAYLIST:
                 return self._get_playlist_tracks(results[f'{Type.PLAYLIST}s']['items'][0]['id'])
             elif query_type == Type.ARTIST:
-                albums = self._get_artist_albums(results[f'{Type.ARTIST}s']['items'][0]['id'])
-                tracks = []
-                for album in albums:
-                    tracks.extend(_pack_album(self.sp.album(album['id'])))
-                return tracks
+                if artist_albums:
+                    albums = self._get_artist_albums(results[f'{Type.ARTIST}s']['items'][0]['id'])
+                    tracks = []
+                    for album in albums:
+                        tracks.extend(_pack_album(self.sp.album(album['id'])))
+                    return tracks
+                else:
+                    return self._get_artist_top(results[f'{Type.ARTIST}s']['items'][0]['id'])
         else:
             return []
 
-    def link(self, query) -> list:
+    def link(self, query, artist_albums: bool = False) -> list:
         try:
             if '/track/' in query:
                 return [Track(self.sp.track(query))]
@@ -45,11 +48,14 @@ class Spotify:
             elif '/show/' in query:
                 return self._get_show_episodes(query)
             elif '/artist/' in query:
-                albums = self._get_artist_albums(query)
-                tracks = []
-                for album in albums:
-                    tracks.extend(_pack_album(self.sp.album(album['id'])))
-                return tracks
+                if artist_albums:
+                    albums = self._get_artist_albums(query)
+                    tracks = []
+                    for album in albums:
+                        tracks.extend(_pack_album(self.sp.album(album['id'])))
+                    return tracks
+                else:
+                    return self._get_artist_top(query)
             else:
                 return []
         except spotipy.exceptions.SpotifyException:
@@ -87,6 +93,13 @@ class Spotify:
             albums.extend(results['items'])
 
         return albums
+
+    def _get_artist_top(self, artist_id):
+        tracks = []
+        for track in self.sp.artist_top_tracks(artist_id)['tracks']:
+            tracks.append(Track(track))
+
+        return tracks
 
 
 def _pack_album(album) -> list:
