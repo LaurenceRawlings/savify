@@ -4,6 +4,7 @@ import re
 import datetime
 import click
 import logging
+from os import system
 from pathlib import Path
 
 from . import __version__, __author__
@@ -30,6 +31,8 @@ BANNER = rf"""
                  Copyright (c) 2018-{datetime.datetime.now().year} {__author__}
 
 """
+
+system('title Savify')
 
 
 class Choices:
