@@ -136,13 +136,13 @@ def guided_cli(type, quality, format, output, group, path, m3u, skip_cover_art):
         elif choice == '8':
             skip_cover_art_input = get_choice()
             if skip_cover_art_input in Choices.BOOL:
-                skip_cover_art = convert_bool(skip_cover_art_input)
+                skip_cover_art = not convert_bool(skip_cover_art_input)
             else:
                 errors.append('Invalid choice')
 
     query = choice
     show_banner()
-    return type, quality, format, output, group, path, m3u, query, not skip_cover_art
+    return type, quality, format, output, group, path, m3u, query, skip_cover_art
 
 
 @click.command()
