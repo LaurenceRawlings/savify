@@ -26,9 +26,8 @@ BANNER = rf"""
 \ $$$$$$$$$$$$$$$$/ |  $$$$$$/|  $$$$$$$   \  $/   | $$| $$     |  $$$$$$$
   \ $$$$$$$$$$$$/    \______/  \_______/    \_/    |__/|__/      \____  $$
     \ $$$$$$$$/                                                  /$$  | $$
-      \ $$$$/                                                   |  $$$$$$/
+      \ $$$$/      https://github.com/LaurenceRawlings/savify   |  $$$$$$/
         \_/                                                      \______/ v{__version__}
-                 Copyright (c) 2018-{datetime.datetime.now().year} {__author__}
 
 """
 
