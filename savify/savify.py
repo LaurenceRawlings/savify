@@ -46,19 +46,23 @@ def _progress(data):
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, path_holder: PathHolder = None, retry: int = 3,
-                 ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
+                 ydl_options: dict = None, skip_cover_art: bool = False, logger: Logger = None,
                  ffmpeg_location: str = 'ffmpeg'):
 
         self.download_format = download_format
         self.quality = quality
         self.group = group
         self.retry = retry
-        self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
         self.downloaded_cover_art = {}
         self.queue_size = 0
         self.completed = 0
+
+        if ydl_options is None:
+            self.ydl_options = {}
+        else:
+            self.ydl_options = ydl_options
 
         if path_holder is None:
             self.path_holder = PathHolder()
@@ -148,7 +152,7 @@ class Savify:
             if not playlist:
                 if query_type in {Type.EPISODE, Type.SHOW, Type.ALBUM}:
                     playlist = track.album_name
-                if query_type is Type.ARTIST:
+                elif query_type is Type.ARTIST:
                     playlist = track.artists[0]
                 else:
                     playlist = track.name
