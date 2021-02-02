@@ -246,8 +246,8 @@ scheduled with cron:
 
 .. code-block:: sh
 
-    $ wget https://github.com/laurencerawlings/savify/savify-docker-scripts.sh
-    $ unzip savify-docker-scripts.sh && rm savify-docker-scripts.sh
+    $ wget https://github.com/laurencerawlings/savify//latest/download/savify-docker-scripts.zip
+    $ unzip savify-docker-scripts.zip && rm savify-docker-scripts.zip
     $ cd savify-docker-scripts/
     
 You then have to edit the configuration file with your preferred text editor (we prefer nano),
