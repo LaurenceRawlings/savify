@@ -60,6 +60,8 @@ class Savify:
         self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
+        self.queue_size = 0
+        self.completed = 0
 
         if api_credentials is None:
             if not (check_env()):
@@ -110,6 +112,7 @@ class Savify:
     def download(self, query, query_type=Type.TRACK, create_m3u=False, artist_albums: bool = False) -> None:
         try:
             queue = self._parse_query(query, query_type=query_type, artist_albums=artist_albums)
+            self.queue_size += len(queue)
         except requests.exceptions.ConnectionError or URLError:
             raise InternetConnectionError
 
@@ -159,6 +162,8 @@ class Savify:
                            f'\n\tReason:\t{failed_job["error"]}\n'
 
         self.logger.info(message)
+        self.queue_size -= len(queue)
+        self.completed -= len(queue)
 
     def _download(self, track: Track) -> dict:
         extractor = 'ytsearch'
@@ -185,6 +190,7 @@ class Savify:
         if check_file(output):
             self.logger.info(f'{str(track)} -> is already downloaded. Skipping...')
             status['returncode'] = 0
+            self.completed += 1
             return status
 
         create_dir(output.parent)
@@ -244,6 +250,7 @@ class Savify:
                     status['returncode'] = 1
                     status['error'] = "Failed to download song."
                     self.logger.error(ex.message)
+                    self.completed += 1
                     return status
 
         from shutil import move, Error as ShutilError
@@ -255,10 +262,12 @@ class Savify:
                 status['returncode'] = 1
                 status['error'] = 'Filesystem error.'
                 self.logger.error('Failed to move temp file!')
+                self.completed += 1
                 return status
 
             status['returncode'] = 0
-            self.logger.info(f'Downloaded -> {str(track)}')
+            self.completed += 1
+            self.logger.info(f'Downloaded {self.completed} / {self.queue_size} -> {str(track)}')
             return status
 
         attempt = 0
@@ -300,6 +309,7 @@ class Savify:
                         status['returncode'] = 1
                         status['error'] = 'Filesystem error.'
                         self.logger.error('Failed to move temp file!')
+                        self.completed += 1
                         return status
 
         status['returncode'] = 0
@@ -308,5 +318,6 @@ class Savify:
             remove(output_temp)
         except OSError:
             pass
-        self.logger.info(f'Downloaded -> {str(track)}')
+        self.completed += 1
+        self.logger.info(f'Downloaded {self.completed} / {self.queue_size} -> {str(track)}')
         return status
