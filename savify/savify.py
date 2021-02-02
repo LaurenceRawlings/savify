@@ -49,7 +49,6 @@ class Savify:
                  ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
                  ffmpeg_location: str = 'ffmpeg'):
 
-        self.check_for_updates()
         self.download_format = download_format
         self.quality = quality
         self.group = group
@@ -83,6 +82,7 @@ class Savify:
             raise FFmpegNotInstalledError
 
         clean(self.path_holder.get_temp_dir())
+        self.check_for_updates()
 
     def check_for_updates(self):
         self.logger.info('Checking for updates...')
@@ -142,7 +142,17 @@ class Savify:
                 successful_jobs.append(job)
 
         if create_m3u and len(successful_jobs) > 0:
-            playlist = safe_path_string(successful_jobs[0]['track'].playlist)
+            track = successful_jobs[0]['track']
+            playlist = safe_path_string(track.playlist)
+
+            if not playlist:
+                if query_type in {Type.EPISODE, Type.SHOW, Type.ALBUM}:
+                    playlist = track.album_name
+                if query_type is Type.ARTIST:
+                    playlist = track.artists[0]
+                else:
+                    playlist = track.name
+
             m3u = f'#EXTM3U\n#PLAYLIST:{playlist}\n'
             m3u_location = self.path_holder.get_download_dir() / f'{playlist}.m3u'
 
