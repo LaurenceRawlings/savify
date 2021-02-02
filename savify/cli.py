@@ -1,7 +1,6 @@
 """Console script for Savify."""
 import sys
 import re
-import datetime
 import click
 import logging
 from os import system
