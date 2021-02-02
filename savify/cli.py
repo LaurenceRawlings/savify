@@ -150,7 +150,7 @@ def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, s
     return type, quality, format, output, group, path, m3u, query, artist_albums, skip_cover_art
 
 
-@click.command()
+@click.command(name='Savify', context_settings=dict(allow_extra_args=True, ignore_unknown_options=True))
 @click.help_option()
 @click.version_option(version=__version__)
 @click.option('-t', '--type', default=Choices.TYPE[0], help='Query type for text search.',
@@ -171,7 +171,8 @@ def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, s
 @click.option('--silent', is_flag=True, help='Hide all output to stdout, overrides verbosity level.')
 @click.option('-v', '--verbose', count=True, help='Change the log verbosity level. [-v, -vv]')
 @click.argument('query', required=False)
-def main(type, quality, format, output, group, path, m3u, artist_albums, verbose, silent, query, skip_cover_art):
+@click.pass_context
+def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, verbose, silent, query, skip_cover_art):
     if not silent:
         show_banner()
         log_level = convert_log_level(verbose)
@@ -189,10 +190,11 @@ def main(type, quality, format, output, group, path, m3u, artist_albums, verbose
     query_type = convert_type(type)
     quality = convert_quality(quality)
     logger = Logger(path_holder.data_path, log_level)
+    ydl_options = {ctx.args[i][2:]: ctx.args[i+1] for i in range(0, len(ctx.args), 2)}
 
     def setup(ffmpeg='ffmpeg'):
         return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
-                      skip_cover_art=skip_cover_art, logger=logger, ffmpeg_location=ffmpeg)
+                      skip_cover_art=skip_cover_art, logger=logger, ffmpeg_location=ffmpeg, ydl_options=ydl_options)
 
     def check_guided():
         if guided:
