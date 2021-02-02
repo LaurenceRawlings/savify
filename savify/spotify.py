@@ -37,17 +37,17 @@ class Spotify:
 
     def link(self, query, artist_albums: bool = False) -> list:
         try:
-            if '/track/' in query:
+            if 'track' in query:
                 return [Track(self.sp.track(query))]
-            elif '/album/' in query:
+            elif 'album' in query:
                 return _pack_album(self.sp.album(query))
-            elif '/playlist/' in query:
+            elif 'playlist' in query:
                 return self._get_playlist_tracks(query)
-            elif '/episode/' in query:
+            elif 'episode' in query:
                 return [Track(self.sp.episode(query, 'US'), track_type=Type.EPISODE)]
-            elif '/show/' in query:
+            elif 'show' in query:
                 return self._get_show_episodes(query)
-            elif '/artist/' in query:
+            elif 'artist' in query:
                 if artist_albums:
                     albums = self._get_artist_albums(query)
                     tracks = []

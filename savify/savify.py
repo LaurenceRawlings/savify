@@ -91,7 +91,7 @@ class Savify:
     def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
         result = []
 
-        if validators.url(query):
+        if validators.url(query) or query[:8] == 'spotify:':
             domain = tldextract.extract(query).domain
             if domain == Platform.SPOTIFY:
                 result = self.spotify.link(query, artist_albums=artist_albums)
