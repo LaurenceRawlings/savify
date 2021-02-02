@@ -246,7 +246,7 @@ scheduled with cron:
 
 .. code-block:: sh
 
-    $ wget https://github.com/laurencerawlings/savify//latest/download/savify-docker-scripts.zip
+    $ wget https://github.com/laurencerawlings/savify/latest/download/savify-docker-scripts.zip
     $ unzip savify-docker-scripts.zip && rm savify-docker-scripts.zip
     $ cd savify-docker-scripts/
     
