@@ -240,6 +240,31 @@ Then run with:
 
 ``$ sh savify.sh "https://open.spotify.com/track/4Dju9g4NCz0LDxwcjonSvI"``
 
+You also have the option to quickstart using our docker script which have an integrated VPN-check
+to see if there are any VPN containers the script can connect to. The script is perfect for being
+scheduled with cron:
+
+.. code-block:: sh
+
+    $ wget https://github.com/laurencerawlings/savify/savify-docker-scripts.sh
+    $ unzip savify-docker-scripts.sh && rm savify-docker-scripts.sh
+    $ cd savify-docker-scripts/
+    
+You then have to edit the configuration file with your preferred text editor (we prefer nano),
+save it (Ctrl + X, Y for saving changes in nano) and rename it to ``config.sh``.
+
+.. code-block:: sh
+    
+    $ nano template.config.sh
+    $ mv template.config.sh config.sh
+    
+You can then run the script:
+
+.. code-block:: sh
+    
+    $ bash bulk-download.sh
+
+
 Spotify Application
 -------------------
 
