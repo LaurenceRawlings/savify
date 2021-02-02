@@ -49,19 +49,27 @@ class Savify:
                  ydl_options: dict = {}, skip_cover_art: bool = False, logger: Logger = None,
                  ffmpeg_location: str = 'ffmpeg'):
 
-        self.logger = logger  # todo: default logger
         self.check_for_updates()
-        self.downloaded_cover_art = {}
         self.download_format = download_format
-        self.path_holder = path_holder
         self.quality = quality
         self.group = group
         self.retry = retry
         self.ydl_options = ydl_options
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
+        self.downloaded_cover_art = {}
         self.queue_size = 0
         self.completed = 0
+
+        if path_holder is None:
+            self.path_holder = PathHolder()
+        else:
+            self.path_holder = path_holder
+
+        if logger is None:
+            self.logger = Logger(self.path_holder.data_path)
+        else:
+            self.logger = logger
 
         if api_credentials is None:
             if not (check_env()):
