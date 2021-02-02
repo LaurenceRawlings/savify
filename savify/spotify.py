@@ -86,8 +86,14 @@ class Spotify:
         return _pack_show(show)
 
     def _get_artist_albums(self, artist_id):
-        results = self.sp.artist_albums(artist_id)
+        results = self.sp.artist_albums(artist_id, album_type='album')
         albums = results['items']
+        while results['next']:
+            results = self.sp.next(results)
+            albums.extend(results['items'])
+
+        results = self.sp.artist_albums(artist_id, album_type='single')
+        albums.extend(results['items'])
         while results['next']:
             results = self.sp.next(results)
             albums.extend(results['items'])
