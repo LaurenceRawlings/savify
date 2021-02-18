@@ -46,7 +46,7 @@ def safe_path_string(string):
         else:
             new_string = new_string + "_"
 
-    return re.sub('\.+$', '', new_string.rstrip())
+    return re.sub(r'\.+$', '', new_string.rstrip())
 
 
 class PathHolder:
