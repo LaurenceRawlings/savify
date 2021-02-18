@@ -32,14 +32,14 @@ class Logger:
         self.logger.error(traceback.format_exc())
 
     def debug(self, message):
-        self.logger.debug(message)
+        self.logger.debug(message.encode('utf8').decode('utf8'))
 
     def warning(self, message):
-        self.logger.warning(message)
+        self.logger.warning(message.encode('utf8').decode('utf8'))
 
     def error(self, message):
-        self.logger.error(message)
+        self.logger.error(message.encode('utf8').decode('utf8'))
 
     def info(self, message):
-        self.logger.info(message)
+        self.logger.info(message.encode('utf8').decode('utf8'))
 
