@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 __all__ = ['PathHolder']
 
@@ -45,7 +46,7 @@ def safe_path_string(string):
         else:
             new_string = new_string + "_"
 
-    return new_string.rstrip()
+    return re.sub('\.+$', '', new_string.rstrip())
 
 
 class PathHolder:
