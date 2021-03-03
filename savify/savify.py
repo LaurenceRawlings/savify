@@ -24,15 +24,15 @@ from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetErro
     YoutubeDlExtractionError, InternetConnectionError
 
 
-def _sort_dir(track, group) -> str:
+def _sort_dir(track: Track, group: str) -> str:
     if not group:
-        return ''
+        return str()
 
     group = group.replace('%artist%', safe_path_string(track.artists[0]))
     group = group.replace('%album%', safe_path_string(track.album_name))
     group = group.replace('%playlist%', safe_path_string(track.playlist))
 
-    return f'{group}'
+    return str(group)
 
 
 def _progress(data) -> None:
@@ -51,14 +51,14 @@ class Savify:
                  ffmpeg_location: str = 'ffmpeg') -> None:
 
         self.download_format = download_format
-        self.quality = quality
-        self.group = group
-        self.retry = retry
-        self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
+        self.skip_cover_art = skip_cover_art
         self.downloaded_cover_art = dict()
+        self.quality = quality
         self.queue_size = 0
         self.completed = 0
+        self.retry = retry
+        self.group = group
 
         # Config or defaults...
         self.ydl_options = ydl_options or dict()
@@ -197,7 +197,7 @@ class Savify:
         status = {
             'track': track,
             'returncode': -1,
-            'location': output
+            'location': output,
         }
 
         if check_file(output):
@@ -235,6 +235,7 @@ class Savify:
                 '-metadata', f'disc={track.disc_number}',
                 '-metadata', f'track={track.track_number}/{track.album_track_count}',
             ],
+
             **self.ydl_options,
         }
 

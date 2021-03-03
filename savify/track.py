@@ -17,6 +17,7 @@ class Track:
         self.track_number = None
         self.release_date = None
         self.disc_number = None
+        self.playlist = None
         self.name = None
         self.uri = None
         self.url = None
@@ -50,9 +51,7 @@ class Track:
             except (KeyError, IndexError):
                 self.cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
 
-        self.try_with_key_error("id", lambda: spotify_data['id'],
-                                default=str(uuid1()))
-
+        self.try_with_key_error("id", lambda: spotify_data['id'], default=str(uuid1()))
         self.try_with_key_error("name", lambda: spotify_data['name'],
                                 default='Unknown Episode' if track_type == Type.EPISODE else 'Unknown Song')
 
