@@ -1,7 +1,10 @@
 __all__ = ['Type', 'Platform', 'Format', 'Quality']
 
 
-class Type:
+from enum import Enum
+
+
+class Type(Enum):
     TRACK = 'track'
     ALBUM = 'album'
     PLAYLIST = 'playlist'
@@ -10,12 +13,12 @@ class Type:
     ARTIST = 'artist'
 
 
-class Platform:
+class Platform(Enum):
     SPOTIFY = 'spotify'
     YOUTUBE = 'youtube'
 
 
-class Format:
+class Format(Enum):
     MP3 = 'mp3'
     AAC = 'aac'
     FLAC = 'flac'
@@ -25,12 +28,12 @@ class Format:
     WAV = 'wav'
 
 
-class Quality:
+class Quality(Enum):
     WORST = '9'
     Q32K = '32'
     Q96K = '96'
     Q128K = '128'
     Q192K = '192'
     Q256K = '256'
-    Q320K =  '320'
+    Q320K = '320'
     BEST = '0'

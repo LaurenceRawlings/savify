@@ -6,6 +6,7 @@ import time
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
+from shutil import move, Error as ShutilError
 from urllib.error import URLError
 
 import validators
@@ -23,7 +24,7 @@ from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetErro
     YoutubeDlExtractionError, InternetConnectionError
 
 
-def _sort_dir(track, group):
+def _sort_dir(track, group) -> str:
     if not group:
         return ''
 
@@ -34,7 +35,7 @@ def _sort_dir(track, group):
     return f'{group}'
 
 
-def _progress(data):
+def _progress(data) -> None:
     if data['status'] == 'downloading':
         pass
     elif data['status'] == 'finished':
@@ -47,7 +48,7 @@ class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, path_holder: PathHolder = None, retry: int = 3,
                  ydl_options: dict = None, skip_cover_art: bool = False, logger: Logger = None,
-                 ffmpeg_location: str = 'ffmpeg'):
+                 ffmpeg_location: str = 'ffmpeg') -> None:
 
         self.download_format = download_format
         self.quality = quality
@@ -55,24 +56,14 @@ class Savify:
         self.retry = retry
         self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
-        self.downloaded_cover_art = {}
+        self.downloaded_cover_art = dict()
         self.queue_size = 0
         self.completed = 0
 
-        if ydl_options is None:
-            self.ydl_options = {}
-        else:
-            self.ydl_options = ydl_options
-
-        if path_holder is None:
-            self.path_holder = PathHolder()
-        else:
-            self.path_holder = path_holder
-
-        if logger is None:
-            self.logger = Logger(self.path_holder.data_path)
-        else:
-            self.logger = logger
+        # Config or defaults...
+        self.ydl_options = ydl_options or dict()
+        self.path_holder = path_holder or PathHolder()
+        self.logger = logger or Logger(self.path_holder.data_path)
 
         if api_credentials is None:
             if not (check_env()):
@@ -88,7 +79,7 @@ class Savify:
         clean(self.path_holder.get_temp_dir())
         self.check_for_updates()
 
-    def check_for_updates(self):
+    def check_for_updates(self) -> None:
         self.logger.info('Checking for updates...')
         from . import __version__
         latest_ver = requests.get('https://api.github.com/repos/LaurenceRawlings/savify/releases/latest').json()[
@@ -275,8 +266,6 @@ class Savify:
                     self.completed += 1
                     return status
 
-        from shutil import move, Error as ShutilError
-
         if self.download_format != Format.MP3 or self.skip_cover_art:
             try:
                 move(output_temp, output)
@@ -297,7 +286,6 @@ class Savify:
 
         while not added_artwork:
             attempt += 1
-
             cover_art_name = f'{track.album_name} - {track.artists[0]}'
 
             if cover_art_name in self.downloaded_cover_art:
@@ -338,8 +326,10 @@ class Savify:
         try:
             from os import remove
             remove(output_temp)
+
         except OSError:
             pass
+
         self.completed += 1
         self.logger.info(f'Downloaded {self.completed} / {self.queue_size} -> {str(track)}')
         return status

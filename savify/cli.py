@@ -42,20 +42,20 @@ class Choices:
     GROUPING = "%artist%, %album%, %playlist% separated by /"
 
 
-def choices(choice):
+def choices(choice) -> str:
     return ', '.join(choice)
 
 
-def get_choice():
+def get_choice() -> str:
     return input('[INPUT]\tEnter choice: ').lower()
 
 
-def show_banner():
+def show_banner() -> None:
     click.clear()
     click.echo(BANNER)
 
 
-def validate_group(ctx, param, value):
+def validate_group(_ctx, _param, value):
     regex = r"^((%artist%|%album%|%playlist%)(\/(%artist%|%album%|%playlist%))*)+$"
     if re.search(regex, str(value)) or value is None:
         return value
@@ -86,6 +86,7 @@ def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, s
         errors = []
         choice = input('[INPUT]\tEnter an option or a search query: ')
 
+        # TODO: This whole file is horrendous
         if choice == '0':
             sys.exit(0)
         elif choice == '1':
@@ -206,7 +207,7 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
         from .ffmpegdl import FFmpegDL
         ffmpeg_dl = FFmpegDL(str(path_holder.data_path))
 
-        if not ffmpeg_dl.check():
+        if not ffmpeg_dl.check_if_file():
             logger.error(ex.message)
             if silent:
                 check_guided()
@@ -221,6 +222,7 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
                     logger.error('Failed to download FFmpeg!')
                     check_guided()
                     return 1
+
                 logger.info(f'FFmpeg downloaded! [{ffmpeg_location}]')
             else:
                 check_guided()
@@ -236,10 +238,12 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
 
     try:
         s.download(query, query_type=query_type, create_m3u=m3u, artist_albums=artist_albums)
+
     except UrlNotSupportedError as ex:
         logger.error(ex.message)
         check_guided()
         return 1
+
     except InternetConnectionError as ex:
         logger.error(ex.message)
         check_guided()
@@ -249,58 +253,34 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
     return 0
 
 
-def convert_type(query_type):
-    if query_type.lower() == 'track':
-        return Type.TRACK
-    elif query_type.lower() == 'album':
-        return Type.ALBUM
-    elif query_type.lower() == 'playlist':
-        return Type.PLAYLIST
-    elif query_type.lower() == 'artist':
-        return Type.ARTIST
+def convert_quality(quality: str) -> Quality:
+    mapping = {
+        'best': Quality.BEST,
+        '320k': Quality.Q320K,
+        '256k': Quality.Q256K,
+        '192k': Quality.Q192K,
+        '128k': Quality.Q128K,
+        '98k': Quality.Q96K,
+        '32k': Quality.Q32K,
+        'worst': Quality.WORST,
+    }
+
+    return mapping[quality.lower()]
 
 
-def convert_quality(quality):
-    if quality.lower() == 'best':
-        return Quality.BEST
-    elif quality.lower() == '320k':
-        return Quality.Q320K
-    elif quality.lower() == '256k':
-        return Quality.Q256K
-    elif quality.lower() == '192k':
-        return Quality.Q192K
-    elif quality.lower() == '128k':
-        return Quality.Q128K
-    elif quality.lower() == '96k':
-        return Quality.Q96K
-    elif quality.lower() == '32k':
-        return Quality.Q32K
-    elif quality.lower() == 'worst':
-        return Quality.WORST
+def convert_type(query_type: str) -> Type:
+    return Type(query_type.lower())
 
 
-def convert_format(output_format):
-    if output_format.lower() == 'mp3':
-        return Format.MP3
-    elif output_format.lower() == 'aac':
-        return Format.AAC
-    elif output_format.lower() == 'flac':
-        return Format.FLAC
-    elif output_format.lower() == 'M4A':
-        return Format.M4A
-    elif output_format.lower() == 'opus':
-        return Format.OPUS
-    elif output_format.lower() == 'vorbis':
-        return Format.VORBIS
-    elif output_format.lower() == 'wav':
-        return Format.WAV
+def convert_format(output_format: str) -> Format:
+    return Format(output_format.lower())
 
 
-def convert_bool(boolean):
+def convert_bool(boolean) -> bool:
     return boolean.lower() == 'true'
 
 
-def convert_log_level(verbosity: int):
+def convert_log_level(verbosity: int) -> int:
     if verbosity == 1:
         return logging.WARNING
     elif verbosity == 2:

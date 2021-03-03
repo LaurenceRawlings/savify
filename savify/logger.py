@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class Logger:
-    def __init__(self, log_location: str = '', log_level=logging.INFO):
+    def __init__(self, log_location: str = '', log_level=logging.INFO) -> None:
         self.logger = logging.getLogger('savify')
         self.logger.setLevel(logging.DEBUG)
 
@@ -27,19 +27,19 @@ class Logger:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
-    def log_traceback(self):
+    def log_traceback(self) -> None:
         self.logger.error('An error occurred!')
         self.logger.error(traceback.format_exc())
 
-    def debug(self, message):
+    def debug(self, message) -> None:
         self.logger.debug(message)
 
-    def warning(self, message):
+    def warning(self, message) -> None:
         self.logger.warning(message)
 
-    def error(self, message):
+    def error(self, message) -> None:
         self.logger.error(message)
 
-    def info(self, message):
+    def info(self, message) -> None:
         self.logger.info(message)
 

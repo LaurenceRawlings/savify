@@ -1,23 +1,28 @@
+import os
+
 from pathlib import Path
+from shutil import rmtree
+from sys import platform
+from uuid import uuid1
+from urllib.request import urlretrieve
 
 __all__ = ['PathHolder']
 
 
-def clean(path):
-    import os
+def clean(path) -> None:
     for file in os.listdir(path):
         file_path = os.path.join(path, file)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)
             elif os.path.isdir(file_path):
-                from shutil import rmtree
                 rmtree(file_path)
+
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def create_dir(path: Path):
+def create_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
@@ -35,7 +40,7 @@ def check_file(path: Path) -> bool:
     return path.is_file()
 
 
-def safe_path_string(string):
+def safe_path_string(string: str) -> str:
     keep_characters = " !£$%^&()_-+=,.;'@#~[]{}"
     new_string = ""
 
@@ -54,15 +59,17 @@ class PathHolder:
     def __init__(self, data_path: str = None, downloads_path: str = None):
         # Setup home/data path
         if data_path is None:
-            from sys import platform
             home = Path.home()
 
             if platform == "win32":
                 self.data_path = home / "AppData/Roaming/Savify"
+
             elif platform == "linux":
                 self.data_path = home / ".local/share/Savify"
+
             elif platform == "darwin":
                 self.data_path = home / "Library/Application Support/Savify"
+
         else:
             self.data_path = Path(data_path)
 
@@ -85,13 +92,9 @@ class PathHolder:
         return self.temp_path
 
     def download_file(self, url: str, extension: str = None) -> Path:
-        from uuid import uuid1
         file_path = self.get_temp_dir() / str(uuid1())
-
         if extension is not None:
             file_path = file_path.with_suffix(f'.{extension}')
 
-        from urllib.request import urlretrieve
         urlretrieve(url, str(file_path))
-
         return file_path
