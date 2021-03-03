@@ -6,7 +6,7 @@ from .types import Type, Platform
 
 class Track:
     def try_with_key_error(self, name: str, getter: Callable, default: str = '') -> None:
-        """Wraps a try-except statement."""
+        """Wraps a try-except-assign statement."""
         try:
             setattr(self, name, getter())
         except KeyError:
@@ -51,17 +51,34 @@ class Track:
             except (KeyError, IndexError):
                 self.cover_art_url = 'https://developer.spotify.com/assets/branding-guidelines/icon3@2x.png'
 
-        self.try_with_key_error("id", lambda: spotify_data['id'], default=str(uuid1()))
-        self.try_with_key_error("name", lambda: spotify_data['name'],
+        self.try_with_key_error("id",
+                                lambda: spotify_data['id'],
+                                default=str(uuid1()))
+
+        self.try_with_key_error("name",
+                                lambda: spotify_data['name'],
                                 default='Unknown Episode' if track_type == Type.EPISODE else 'Unknown Song')
 
-        self.try_with_key_error("album_track_count", lambda: spotify_data['album']['total_tracks'])
-        self.try_with_key_error("release_date", lambda: spotify_data['album']['release_date'])
-        self.try_with_key_error("url", lambda: spotify_data['external_urls']['spotify'])
-        self.try_with_key_error("track_number", lambda: spotify_data['track_number'])
-        self.try_with_key_error("disc_number", lambda: spotify_data['disc_number'])
-        self.try_with_key_error("playlist", lambda: spotify_data['playlist'])
-        self.try_with_key_error("uri", lambda: spotify_data['uri'])
+        self.try_with_key_error("url",
+                                lambda: spotify_data['external_urls']['spotify'])
+
+        self.try_with_key_error("album_track_count",
+                                lambda: spotify_data['album']['total_tracks'])
+
+        self.try_with_key_error("release_date",
+                                lambda: spotify_data['album']['release_date'])
+
+        self.try_with_key_error("track_number",
+                                lambda: spotify_data['track_number'])
+
+        self.try_with_key_error("disc_number",
+                                lambda: spotify_data['disc_number'])
+
+        self.try_with_key_error("playlist",
+                                lambda: spotify_data['playlist'])
+
+        self.try_with_key_error("uri",
+                                lambda: spotify_data['uri'])
 
     def __repr__(self) -> str:
         return f'{self.id}\nName: {self.name}\nArtists: {self.artists}\nAlbum: {self.album_name}\n' \
