@@ -6,6 +6,7 @@ import time
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from pathlib import Path
+from shutil import move, Error as ShutilError
 from urllib.error import URLError
 
 import validators
@@ -23,18 +24,18 @@ from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetErro
     YoutubeDlExtractionError, InternetConnectionError
 
 
-def _sort_dir(track, group):
+def _sort_dir(track: Track, group: str) -> str:
     if not group:
-        return ''
+        return str()
 
     group = group.replace('%artist%', safe_path_string(track.artists[0]))
     group = group.replace('%album%', safe_path_string(track.album_name))
     group = group.replace('%playlist%', safe_path_string(track.playlist))
 
-    return f'{group}'
+    return str(group)
 
 
-def _progress(data):
+def _progress(data) -> None:
     if data['status'] == 'downloading':
         pass
     elif data['status'] == 'finished':
@@ -47,38 +48,28 @@ class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, path_holder: PathHolder = None, retry: int = 3,
                  ydl_options: dict = None, skip_cover_art: bool = False, logger: Logger = None,
-                 ffmpeg_location: str = 'ffmpeg'):
+                 ffmpeg_location: str = 'ffmpeg') -> None:
 
         self.download_format = download_format
-        self.quality = quality
-        self.group = group
-        self.retry = retry
-        self.skip_cover_art = skip_cover_art
         self.ffmpeg_location = ffmpeg_location
-        self.downloaded_cover_art = {}
+        self.skip_cover_art = skip_cover_art
+        self.downloaded_cover_art = dict()
+        self.quality = quality
         self.queue_size = 0
         self.completed = 0
+        self.retry = retry
+        self.group = group
 
-        if ydl_options is None:
-            self.ydl_options = {}
-        else:
-            self.ydl_options = ydl_options
-
-        if path_holder is None:
-            self.path_holder = PathHolder()
-        else:
-            self.path_holder = path_holder
-
-        if logger is None:
-            self.logger = Logger(self.path_holder.data_path)
-        else:
-            self.logger = logger
+        # Config or defaults...
+        self.ydl_options = ydl_options or dict()
+        self.path_holder = path_holder or PathHolder()
+        self.logger = logger or Logger(self.path_holder.data_path)
 
         if api_credentials is None:
-            if not (check_env()):
+            if not check_env():
                 raise SpotifyApiCredentialsNotSetError
-            else:
-                self.spotify = Spotify()
+
+            self.spotify = Spotify()
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
@@ -88,12 +79,14 @@ class Savify:
         clean(self.path_holder.get_temp_dir())
         self.check_for_updates()
 
-    def check_for_updates(self):
+    def check_for_updates(self) -> None:
         self.logger.info('Checking for updates...')
-        from . import __version__
         latest_ver = requests.get('https://api.github.com/repos/LaurenceRawlings/savify/releases/latest').json()[
             'tag_name']
+
+        from . import __version__
         current_ver = f'v{__version__}'
+
         if latest_ver == current_ver:
             self.logger.info('Savify is up to date!')
         else:
@@ -101,21 +94,23 @@ class Savify:
                              'get the latest release here: https://github.com/LaurenceRawlings/savify/releases')
 
     def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
-        result = []
-
+        result = list()
         if validators.url(query) or query[:8] == 'spotify:':
-            domain = tldextract.extract(query).domain
-            if domain == Platform.SPOTIFY:
+            if tldextract.extract(query).domain == Platform.SPOTIFY:
                 result = self.spotify.link(query, artist_albums=artist_albums)
             else:
                 raise UrlNotSupportedError(query)
+
         else:
             if query_type == Type.TRACK:
                 result = self.spotify.search(query, query_type=Type.TRACK)
+
             elif query_type == Type.ALBUM:
                 result = self.spotify.search(query, query_type=Type.ALBUM)
+
             elif query_type == Type.PLAYLIST:
                 result = self.spotify.search(query, query_type=Type.PLAYLIST)
+
             elif query_type == Type.ARTIST:
                 result = self.spotify.search(query, query_type=Type.ARTIST, artist_albums=artist_albums)
 
@@ -137,8 +132,8 @@ class Savify:
         with ThreadPool(cpu_count()) as pool:
             jobs = pool.map(self._download, queue)
 
-        failed_jobs = []
-        successful_jobs = []
+        failed_jobs = list()
+        successful_jobs = list()
         for job in jobs:
             if job['returncode'] != 0:
                 failed_jobs.append(job)
@@ -189,12 +184,8 @@ class Savify:
 
     def _download(self, track: Track) -> dict:
         extractor = 'ytsearch'
-
         if track.platform == Platform.SPOTIFY:
-            if track.track_type == Type.EPISODE:
-                query = track.url
-            else:
-                query = f'{extractor}:{str(track)} audio'
+            query = track.url if track.track_type == Type.EPISODE else f'{extractor}:{str(track)} audio'
         else:
             query = ''
 
@@ -206,7 +197,7 @@ class Savify:
         status = {
             'track': track,
             'returncode': -1,
-            'location': output
+            'location': output,
         }
 
         if check_file(output):
@@ -244,6 +235,7 @@ class Savify:
                 '-metadata', f'disc={track.disc_number}',
                 '-metadata', f'track={track.track_number}/{track.album_track_count}',
             ],
+
             **self.ydl_options,
         }
 
@@ -257,16 +249,15 @@ class Savify:
             options['ffmpeg_location'] = self.ffmpeg_location
 
         attempt = 0
-        downloaded = False
-
-        while not downloaded:
+        while True:
             attempt += 1
 
             try:
                 with YoutubeDL(options) as ydl:
                     ydl.download([query])
                     if check_file(Path(output_temp)):
-                        downloaded = True
+                        break
+
             except YoutubeDlExtractionError as ex:
                 if attempt > self.retry:
                     status['returncode'] = 1
@@ -274,8 +265,6 @@ class Savify:
                     self.logger.error(ex.message)
                     self.completed += 1
                     return status
-
-        from shutil import move, Error as ShutilError
 
         if self.download_format != Format.MP3 or self.skip_cover_art:
             try:
@@ -293,11 +282,8 @@ class Savify:
             return status
 
         attempt = 0
-        added_artwork = False
-
-        while not added_artwork:
+        while True:
             attempt += 1
-
             cover_art_name = f'{track.album_name} - {track.artists[0]}'
 
             if cover_art_name in self.downloaded_cover_art:
@@ -321,12 +307,14 @@ class Savify:
 
             try:
                 ffmpeg.run()
-                added_artwork = True
+                break
+
             except FFRuntimeError:
                 if attempt > self.retry:
                     try:
                         move(output_temp, output)
-                        added_artwork = True
+                        break
+
                     except ShutilError:
                         status['returncode'] = 1
                         status['error'] = 'Filesystem error.'
@@ -338,8 +326,10 @@ class Savify:
         try:
             from os import remove
             remove(output_temp)
+
         except OSError:
             pass
+
         self.completed += 1
         self.logger.info(f'Downloaded {self.completed} / {self.queue_size} -> {str(track)}')
         return status
