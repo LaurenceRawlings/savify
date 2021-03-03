@@ -86,7 +86,7 @@ def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, s
         errors = []
         choice = input('[INPUT]\tEnter an option or a search query: ')
 
-        # TODO: This whole file is horrendous
+        # TODO: This is horrendous
         if choice == '0':
             sys.exit(0)
         elif choice == '1':
@@ -253,6 +253,17 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
     return 0
 
 
+def convert_type(query_type: str) -> Type:
+    mapping = {
+        'track': Type.TRACK,
+        'album': Type.ALBUM,
+        'playlist': Type.PLAYLIST,
+        "artist": Type.ARTIST,
+    }
+
+    return mapping[query_type.lower()]
+
+
 def convert_quality(quality: str) -> Quality:
     mapping = {
         'best': Quality.BEST,
@@ -268,12 +279,18 @@ def convert_quality(quality: str) -> Quality:
     return mapping[quality.lower()]
 
 
-def convert_type(query_type: str) -> Type:
-    return Type(query_type.lower())
-
-
 def convert_format(output_format: str) -> Format:
-    return Format(output_format.lower())
+    mapping = {
+        'mp3': Format.MP3,
+        'aac': Format.AAC,
+        'flac': Format.FLAC,
+        'm4a': Format.M4A,
+        'opus': Format.OPUS,
+        'vorbis': Format.VORBIS,
+        'wav': Format.WAV,
+    }
+
+    return mapping[output_format.lower()]
 
 
 def convert_bool(boolean) -> bool:

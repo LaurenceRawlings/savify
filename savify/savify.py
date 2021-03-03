@@ -66,10 +66,10 @@ class Savify:
         self.logger = logger or Logger(self.path_holder.data_path)
 
         if api_credentials is None:
-            if not (check_env()):
+            if not check_env():
                 raise SpotifyApiCredentialsNotSetError
-            else:
-                self.spotify = Spotify()
+
+            self.spotify = Spotify()
         else:
             self.spotify = Spotify(api_credentials=api_credentials)
 
@@ -81,10 +81,12 @@ class Savify:
 
     def check_for_updates(self) -> None:
         self.logger.info('Checking for updates...')
-        from . import __version__
         latest_ver = requests.get('https://api.github.com/repos/LaurenceRawlings/savify/releases/latest').json()[
             'tag_name']
+
+        from . import __version__
         current_ver = f'v{__version__}'
+
         if latest_ver == current_ver:
             self.logger.info('Savify is up to date!')
         else:
@@ -92,21 +94,23 @@ class Savify:
                              'get the latest release here: https://github.com/LaurenceRawlings/savify/releases')
 
     def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
-        result = []
-
+        result = list()
         if validators.url(query) or query[:8] == 'spotify:':
-            domain = tldextract.extract(query).domain
-            if domain == Platform.SPOTIFY:
+            if tldextract.extract(query).domain == Platform.SPOTIFY:
                 result = self.spotify.link(query, artist_albums=artist_albums)
             else:
                 raise UrlNotSupportedError(query)
+
         else:
             if query_type == Type.TRACK:
                 result = self.spotify.search(query, query_type=Type.TRACK)
+
             elif query_type == Type.ALBUM:
                 result = self.spotify.search(query, query_type=Type.ALBUM)
+
             elif query_type == Type.PLAYLIST:
                 result = self.spotify.search(query, query_type=Type.PLAYLIST)
+
             elif query_type == Type.ARTIST:
                 result = self.spotify.search(query, query_type=Type.ARTIST, artist_albums=artist_albums)
 
@@ -128,8 +132,8 @@ class Savify:
         with ThreadPool(cpu_count()) as pool:
             jobs = pool.map(self._download, queue)
 
-        failed_jobs = []
-        successful_jobs = []
+        failed_jobs = list()
+        successful_jobs = list()
         for job in jobs:
             if job['returncode'] != 0:
                 failed_jobs.append(job)
@@ -180,12 +184,8 @@ class Savify:
 
     def _download(self, track: Track) -> dict:
         extractor = 'ytsearch'
-
         if track.platform == Platform.SPOTIFY:
-            if track.track_type == Type.EPISODE:
-                query = track.url
-            else:
-                query = f'{extractor}:{str(track)} audio'
+            query = track.url if track.track_type == Type.EPISODE else f'{extractor}:{str(track)} audio'
         else:
             query = ''
 
@@ -248,16 +248,15 @@ class Savify:
             options['ffmpeg_location'] = self.ffmpeg_location
 
         attempt = 0
-        downloaded = False
-
-        while not downloaded:
+        while True:
             attempt += 1
 
             try:
                 with YoutubeDL(options) as ydl:
                     ydl.download([query])
                     if check_file(Path(output_temp)):
-                        downloaded = True
+                        break
+
             except YoutubeDlExtractionError as ex:
                 if attempt > self.retry:
                     status['returncode'] = 1
@@ -282,9 +281,7 @@ class Savify:
             return status
 
         attempt = 0
-        added_artwork = False
-
-        while not added_artwork:
+        while True:
             attempt += 1
             cover_art_name = f'{track.album_name} - {track.artists[0]}'
 
@@ -309,12 +306,14 @@ class Savify:
 
             try:
                 ffmpeg.run()
-                added_artwork = True
+                break
+
             except FFRuntimeError:
                 if attempt > self.retry:
                     try:
                         move(output_temp, output)
-                        added_artwork = True
+                        break
+
                     except ShutilError:
                         status['returncode'] = 1
                         status['error'] = 'Filesystem error.'
