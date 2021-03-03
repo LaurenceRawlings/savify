@@ -31,15 +31,14 @@ class Logger:
         self.logger.error('An error occurred!')
         self.logger.error(traceback.format_exc())
 
-    def debug(self, message) -> None:
-        self.logger.debug(message)
+    def debug(self, message):
+        self.logger.debug(message.encode('utf8').decode('utf8'))
 
-    def warning(self, message) -> None:
-        self.logger.warning(message)
+    def warning(self, message):
+        self.logger.warning(message.encode('utf8').decode('utf8'))
 
-    def error(self, message) -> None:
-        self.logger.error(message)
+    def error(self, message):
+        self.logger.error(message.encode('utf8').decode('utf8'))
 
-    def info(self, message) -> None:
-        self.logger.info(message)
-
+    def info(self, message):
+        self.logger.info(message.encode('utf8').decode('utf8'))

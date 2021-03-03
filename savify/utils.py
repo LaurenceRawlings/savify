@@ -5,6 +5,7 @@ from shutil import rmtree
 from sys import platform
 from uuid import uuid1
 from urllib.request import urlretrieve
+import re
 
 __all__ = ['PathHolder']
 
@@ -50,7 +51,7 @@ def safe_path_string(string: str) -> str:
         else:
             new_string = new_string + "_"
 
-    return new_string.rstrip()
+    return re.sub(r'\.+$', '', new_string.rstrip()).encode('utf8').decode('utf8')
 
 
 class PathHolder:
