@@ -7,7 +7,7 @@ from setuptools import setup, find_packages, Extension
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-requirements = ['ffmpy>=0.3.0', 'spotipy>=2.16.1', 'tldextract>=3.1.0', 'validators>=0.18.2', 'youtube-dl>=2021.1.24.1',
+requirements = ['ffmpy>=0.3.0', 'spotipy>=2.16.1', 'tldextract>=3.1.0', 'validators>=0.18.2', 'youtube-dl>=2021.4.7',
                 'requests>=2.25.1', 'click>=7.1.2']
 
 setup_requirements = ['pytest-runner', ]
