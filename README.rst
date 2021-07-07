@@ -249,19 +249,19 @@ scheduled with cron:
     $ wget https://github.com/laurencerawlings/savify/latest/download/savify-docker-scripts.zip
     $ unzip savify-docker-scripts.zip && rm savify-docker-scripts.zip
     $ cd savify-docker-scripts/
-    
+
 You then have to edit the configuration file with your preferred text editor (we prefer nano),
 save it (Ctrl + X, Y for saving changes in nano) and rename it to ``config.sh``.
 
 .. code-block:: sh
-    
+
     $ nano template.config.sh
     $ mv template.config.sh config.sh
-    
+
 You can then run the script:
 
 .. code-block:: sh
-    
+
     $ bash bulk-download.sh
 
 
