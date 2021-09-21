@@ -6,13 +6,14 @@ from .types import Type
 
 
 class Spotify:
-    def __init__(self, api_credentials=None) -> None:
+    def __init__(self, api_credentials=None, language: str = None) -> None:
         if api_credentials is None:
-            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+            self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(), 
+                language=language)
         else:
             client_id, client_secret = api_credentials
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
-                client_id=client_id, client_secret=client_secret))
+                client_id=client_id, client_secret=client_secret), language=language)
 
     def search(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
