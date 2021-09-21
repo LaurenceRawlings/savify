@@ -47,8 +47,8 @@ def _progress(data) -> None:
 class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, path_holder: PathHolder = None, retry: int = 3,
-                 ydl_options: dict = None, skip_cover_art: bool = False, logger: Logger = None,
-                 ffmpeg_location: str = 'ffmpeg') -> None:
+                 ydl_options: dict = None, skip_cover_art: bool = False, language: str = None,
+                 logger: Logger = None, ffmpeg_location: str = 'ffmpeg') -> None:
 
         self.download_format = download_format
         self.ffmpeg_location = ffmpeg_location
@@ -69,9 +69,9 @@ class Savify:
             if not check_env():
                 raise SpotifyApiCredentialsNotSetError
 
-            self.spotify = Spotify()
+            self.spotify = Spotify(language=language)
         else:
-            self.spotify = Spotify(api_credentials=api_credentials)
+            self.spotify = Spotify(api_credentials=api_credentials, language=language)
 
         if not check_ffmpeg() and self.ffmpeg_location == 'ffmpeg':
             raise FFmpegNotInstalledError

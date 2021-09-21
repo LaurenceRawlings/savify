@@ -168,12 +168,14 @@ def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, s
 @click.option('-m', '--m3u', is_flag=True, help='Create an M3U playlist file for your download.')
 @click.option('-a', '--artist-albums', is_flag=True, help='Download all artist songs and albums'
                                                           ', not just top 10 songs.')
+@click.option('-l', '--language', default=None, help='ISO-639 language code to be used for searching and tags applying.',
+              type=click.STRING)
 @click.option('--skip-cover-art', is_flag=True, help='Don\'t add cover art to downloaded song(s).')
 @click.option('--silent', is_flag=True, help='Hide all output to stdout, overrides verbosity level.')
 @click.option('-v', '--verbose', count=True, help='Change the log verbosity level. [-v, -vv]')
 @click.argument('query', required=False)
 @click.pass_context
-def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, verbose, silent, query, skip_cover_art):
+def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, verbose, silent, query, skip_cover_art, language):
     if not silent:
         show_banner()
         log_level = convert_log_level(verbose)
@@ -195,7 +197,8 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
 
     def setup(ffmpeg='ffmpeg'):
         return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
-                      skip_cover_art=skip_cover_art, logger=logger, ffmpeg_location=ffmpeg, ydl_options=ydl_options)
+                      skip_cover_art=skip_cover_art, language=language, logger=logger, ffmpeg_location=ffmpeg, 
+                      ydl_options=ydl_options)
 
     def check_guided():
         if guided:
