@@ -12,7 +12,7 @@ from urllib.error import URLError
 import validators
 import tldextract
 import requests
-from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 from ffmpy import FFmpeg, FFRuntimeError
 
 from .utils import PathHolder, safe_path_string, check_env, check_ffmpeg, check_file, create_dir, clean
