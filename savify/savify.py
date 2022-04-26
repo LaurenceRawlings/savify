@@ -209,7 +209,7 @@ class Savify:
         create_dir(output.parent)
 
         options = {
-            'format': 'bestaudio/best',
+            'format': f'bestaudio[acodec={self.download_format}]/bestaudio/best',
             'outtmpl': output_temp,
             'restrictfilenames': True,
             'ignoreerrors': True,
