@@ -18,5 +18,5 @@ For example run :
 > If you can't run the file , do :
 > 
 > ```
->   chmod +x ././savify_playlist.sh 
+>   chmod +x ./savify_playlist.sh 
 > ```
