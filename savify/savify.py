@@ -23,6 +23,8 @@ from .logger import Logger
 from .exceptions import FFmpegNotInstalledError, SpotifyApiCredentialsNotSetError, UrlNotSupportedError, \
     YoutubeDlExtractionError, InternetConnectionError
 
+format_extension_map = {"vorbis": "ogg"}
+
 
 def _sort_dir(track: Track, group: str) -> str:
     if not group:
@@ -190,7 +192,7 @@ class Savify:
             query = ''
 
         output = self.path_holder.get_download_dir() / f'{_sort_dir(track, self.group)}' / safe_path_string(
-            f'{str(track)}.{self.download_format}')
+            f'{str(track)}.{format_extension_map.get(self.download_format, self.download_format)}')
 
         output_temp = f'{str(self.path_holder.get_temp_dir())}/{track.id}.%(ext)s'
 
@@ -239,7 +241,10 @@ class Savify:
             **self.ydl_options,
         }
 
-        output_temp = output_temp.replace('%(ext)s', self.download_format)
+        output_temp = output_temp.replace(
+            '%(ext)s',
+            format_extension_map.get(self.download_format, self.download_format),
+        )
 
         if self.download_format == Format.MP3:
             options['postprocessor_args'].append('-codec:a')
