@@ -243,7 +243,7 @@ class Savify:
 
         output_temp = output_temp.replace(
             '%(ext)s',
-            download_extension_map.get(self.download_format, self.download_format),
+            format_extension_map.get(self.download_format, self.download_format),
         )
 
         if self.download_format == Format.MP3:
