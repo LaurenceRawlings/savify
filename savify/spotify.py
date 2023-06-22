@@ -65,8 +65,6 @@ class Spotify:
                 if artist_albums:
                     albums = self._get_artist_albums(query)
                     tracks = list()
-                    print("excluding types")
-                    print(skip_album_types)
                     if len(skip_album_types) > 0:
                         albums = [ album for album in albums if not album["album_type"] in skip_album_types ]
                     for album in albums:
