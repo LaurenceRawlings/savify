@@ -16,7 +16,6 @@ class Spotify:
 
     def search(self, query, query_type=Type.TRACK, artist_albums: bool = False, skip_album_types: list = []) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
-        self.logger.info(f"Searching fro stuff")
         if len(results[f'{query_type}s']['items']) > 0:
             if query_type == Type.TRACK:
                 return [Track(results[f'{Type.TRACK}s']['items'][0])]

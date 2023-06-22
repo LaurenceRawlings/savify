@@ -68,7 +68,7 @@ def validate_skip_album_types(_ctx, _param, value):
     if re.search(regex, str(value)) or value is None:
         return value
     else:
-        raise click.BadParameter('Group must be in the form x or x,x,x... where x in [single, album, compilation]')
+        raise click.BadParameter('Skip Album Type must be in the form x or x,x,x... where x in [single, album, compilation]')
 
 
 def guided_cli(type, quality, format, output, group, path, m3u, artist_albums, skip_cover_art, skip_album_types):
@@ -209,8 +209,6 @@ def main(ctx, type, quality, format, output, group, path, m3u, artist_albums, ve
     logger = Logger(path_holder.data_path, log_level)
     ydl_options = {ctx.args[i][2:]: ctx.args[i+1] for i in range(0, len(ctx.args), 2)}
     skip_album_types = [] if skip_album_types is None else skip_album_types.split(',')
-
-    print(skip_album_types)
 
     def setup(ffmpeg='ffmpeg'):
         return Savify(quality=quality, download_format=output_format, path_holder=path_holder, group=group,
