@@ -48,7 +48,7 @@ class Savify:
     def __init__(self, api_credentials=None, quality=Quality.BEST, download_format=Format.MP3,
                  group=None, path_holder: PathHolder = None, retry: int = 3,
                  ydl_options: dict = None, skip_cover_art: bool = False, logger: Logger = None,
-                 ffmpeg_location: str = 'ffmpeg') -> None:
+                 ffmpeg_location: str = 'ffmpeg', skip_album_types=None) -> None:
 
         self.download_format = download_format
         self.ffmpeg_location = ffmpeg_location
@@ -59,6 +59,7 @@ class Savify:
         self.completed = 0
         self.retry = retry
         self.group = group
+        self.skip_album_types = [] if skip_album_types is None else skip_album_types 
 
         # Config or defaults...
         self.ydl_options = ydl_options or dict()
@@ -93,11 +94,11 @@ class Savify:
             self.logger.info('A new version of Savify is available, '
                              'get the latest release here: https://github.com/LaurenceRawlings/savify/releases')
 
-    def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
+    def _parse_query(self, query, query_type=Type.TRACK, artist_albums: bool = False, skip_album_types: list = []) -> list:
         result = list()
         if validators.url(query) or query[:8] == 'spotify:':
             if tldextract.extract(query).domain == Platform.SPOTIFY:
-                result = self.spotify.link(query, artist_albums=artist_albums)
+                result = self.spotify.link(query, artist_albums=artist_albums, skip_album_types=skip_album_types)
             else:
                 raise UrlNotSupportedError(query)
 
@@ -116,9 +117,9 @@ class Savify:
 
         return result
 
-    def download(self, query, query_type=Type.TRACK, create_m3u=False, artist_albums: bool = False) -> None:
+    def download(self, query, query_type=Type.TRACK, create_m3u=False, artist_albums: bool = False, skip_album_types: list = []) -> None:
         try:
-            queue = self._parse_query(query, query_type=query_type, artist_albums=artist_albums)
+            queue = self._parse_query(query, query_type=query_type, artist_albums=artist_albums, skip_album_types=skip_album_types)
             self.queue_size += len(queue)
         except requests.exceptions.ConnectionError or URLError:
             raise InternetConnectionError

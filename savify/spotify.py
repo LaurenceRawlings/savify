@@ -14,8 +14,9 @@ class Spotify:
             self.sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
                 client_id=client_id, client_secret=client_secret))
 
-    def search(self, query, query_type=Type.TRACK, artist_albums: bool = False) -> list:
+    def search(self, query, query_type=Type.TRACK, artist_albums: bool = False, skip_album_types: list = []) -> list:
         results = self.sp.search(q=query, limit=1, type=query_type)
+        self.logger.info(f"Searching fro stuff")
         if len(results[f'{query_type}s']['items']) > 0:
             if query_type == Type.TRACK:
                 return [Track(results[f'{Type.TRACK}s']['items'][0])]
@@ -30,6 +31,8 @@ class Spotify:
                 if artist_albums:
                     albums = self._get_artist_albums(results[f'{Type.ARTIST}s']['items'][0]['id'])
                     tracks = list()
+                    if len(skip_album_types) > 0:
+                        albums = [ album for album in albums if not album["album_type"] in skip_album_types ]
                     for album in albums:
                         tracks.extend(_pack_album(self.sp.album(album['id'])))
 
@@ -41,7 +44,7 @@ class Spotify:
         else:
             return list()
 
-    def link(self, query, artist_albums: bool = False) -> list:
+    def link(self, query, artist_albums: bool = False, skip_album_types: list = []) -> list:
         try:
             if 'track' in query:
                 return [Track(self.sp.track(query))]
@@ -62,6 +65,10 @@ class Spotify:
                 if artist_albums:
                     albums = self._get_artist_albums(query)
                     tracks = list()
+                    print("excluding types")
+                    print(skip_album_types)
+                    if len(skip_album_types) > 0:
+                        albums = [ album for album in albums if not album["album_type"] in skip_album_types ]
                     for album in albums:
                         tracks.extend(_pack_album(self.sp.album(album['id'])))
 
